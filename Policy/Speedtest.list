@@ -6,7 +6,7 @@
 # HOST-SUFFIX: 4
 # USER-AGENT: 1
 # TOTAL: 7
-HOST,speed.dler.io
+HOST-SUFFIX,speed.dler.io
 HOST-SUFFIX,fast.com
 HOST-SUFFIX,ooklaserver.net
 HOST-SUFFIX,speed.cloudflare.com

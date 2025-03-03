@@ -82,6 +82,7 @@ HOST-KEYWORD,cxkcloud
 HOST-KEYWORD,catchflying
 HOST-KEYWORD,mocloudplus
 HOST-KEYWORD,flycloud2
+HOST-KEYWORD,fyapi
 HOST-KEYWORD,tzct
 HOST-KEYWORD,exflux
 HOST-KEYWORD,dlercloud
@@ -109,7 +110,7 @@ HOST-KEYWORD,gacloudltd
 HOST-KEYWORD,osk2.com
 HOST-KEYWORD,naiyouu
 HOST-KEYWORD,bygcloud
-HOST,m.sw16.icu
+HOST-SUFFIX,m.sw16.icu
 HOST-KEYWORD,flyingbird
 HOST-KEYWORD,objc
 HOST-KEYWORD,ouonet
@@ -122,8 +123,8 @@ HOST-SUFFIX,1yunti,proxy
 
 
 #Cloudflare 减速器
-HOST,ajax.cloudflare.com
-HOST,static.cloudflareinsights.com
+HOST-SUFFIX,ajax.cloudflare.com
+HOST-SUFFIX,static.cloudflareinsights.com
 
 # Google Analytics
-HOST,analyticsmobile-pa.googleapis.com
+HOST-SUFFIX,analyticsmobile-pa.googleapis.com
