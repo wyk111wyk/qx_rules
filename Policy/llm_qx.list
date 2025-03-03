@@ -1,10 +1,10 @@
 # https://openai.com/
 # created by blackmatrix7 
 # repo:https://github.com/blackmatrix7/ios_rule_script
-DOMAIN,cdn.auth0.com
-DOMAIN,o33249.ingest.sentry.io
-DOMAIN-SUFFIX,ai.com
-DOMAIN-SUFFIX,challenges.cloudflare.com
+HOST,cdn.auth0.com
+HOST,o33249.ingest.sentry.io
+HOST-SUFFIX,ai.com
+HOST-SUFFIX,challenges.cloudflare.com
 HOST,browser-intake-datadoghq.com
 HOST,chat.openai.com.cdn.cloudflare.net
 HOST,gemini.google.com
@@ -47,7 +47,7 @@ IP-ASN,20473
 HOST,cdn.usefathom.com
 HOST-SUFFIX,anthropic.com
 HOST-SUFFIX,claude.ai
-DOMAIN-KEYWORD,claude
+HOST-KEYWORD,claude
 
 # https://bard.google.com/
 # created by limbopro
@@ -56,8 +56,8 @@ HOST,ai.google.dev
 HOST,alkalimakersuite-pa.clients6.google.com
 HOST,generativelanguage.googleapis.com
 HOST,makersuite.google.com
-DOMAIN-SUFFIX,in.appcenter.ms
-DOMAIN-SUFFIX,ogs.google.com
+HOST-SUFFIX,in.appcenter.ms
+HOST-SUFFIX,ogs.google.com
 HOST-SUFFIX,bard.google.com
 HOST-SUFFIX,deepmind.com
 HOST-SUFFIX,deepmind.google
@@ -67,7 +67,7 @@ HOST-SUFFIX,proactivebackend-pa.googleapis.com
 HOST-SUFFIX,generativelanguage.googleapis.com
 
 # > Google Voice
-DOMAIN,lens.l.google.com
+HOST,lens.l.google.com
 
 # https://console.x.ai/
-DOMAIN-SUFFIX,api.x.ai
+HOST-SUFFIX,api.x.ai
