@@ -35,7 +35,7 @@ HOST,tv.applemusic.com
 HOST,uts-api.itunes.apple.com
 HOST-SUFFIX,apple-dns.net
 HOST-SUFFIX,apple.news
-HOST-SUFFIX,apps.apple.com
+// HOST-SUFFIX,apps.apple.com
 HOST-SUFFIX,appsto.re
 HOST-SUFFIX,audio-ssl.itunes.apple.com
 HOST-SUFFIX,blobstore.apple.com
