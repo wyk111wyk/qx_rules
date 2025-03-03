@@ -5,20 +5,20 @@
 # HOST: 12
 # HOST-SUFFIX: 5
 # TOTAL: 17
-HOST,csgo.wmsj.cn,SteamCN
-HOST,dl.steam.clngaa.com,SteamCN
-HOST,dl.steam.ksyna.com,SteamCN
-HOST,dota2.wmsj.cn,SteamCN
-HOST,st.dl.bscstorage.net,SteamCN
-HOST,st.dl.eccdnx.com,SteamCN
-HOST,st.dl.pinyuncloud.com,SteamCN
-HOST,steampipe.steamcontent.tnkjmec.com,SteamCN
-HOST,steampowered.com.8686c.com,SteamCN
-HOST,steamstatic.com.8686c.com,SteamCN
-HOST,wmsjsteam.com,SteamCN
-HOST,xz.pphimalayanrt.com,SteamCN
-HOST-SUFFIX,cm.steampowered.com,SteamCN
-HOST-SUFFIX,steamchina.com,SteamCN
-HOST-SUFFIX,steamcontent.com,SteamCN
-HOST-SUFFIX,steamserver.net,SteamCN
-HOST-SUFFIX,steamusercontent.com,SteamCN
+HOST,csgo.wmsj.cn
+HOST,dl.steam.clngaa.com
+HOST,dl.steam.ksyna.com
+HOST,dota2.wmsj.cn
+HOST,st.dl.bscstorage.net
+HOST,st.dl.eccdnx.com
+HOST,st.dl.pinyuncloud.com
+HOST,steampipe.steamcontent.tnkjmec.com
+HOST,steampowered.com.8686c.com
+HOST,steamstatic.com.8686c.com
+HOST,wmsjsteam.com
+HOST,xz.pphimalayanrt.com
+HOST-SUFFIX,cm.steampowered.com
+HOST-SUFFIX,steamchina.com
+HOST-SUFFIX,steamcontent.com
+HOST-SUFFIX,steamserver.net
+HOST-SUFFIX,steamusercontent.com
