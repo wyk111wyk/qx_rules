@@ -11,7 +11,6 @@ HOST,apple.comscoreresearch.com
 HOST,books.itunes.apple.com
 HOST,cdn.apple-cloudkit.com
 HOST,cvws.icloud-content.com
-HOST,developer.apple.com
 HOST,devimages-cdn.apple.com
 HOST,devstreaming-cdn.apple.com
 HOST,docs-assets.developer.apple.com
@@ -30,7 +29,6 @@ HOST,news-events.apple.com
 HOST,np-edge.itunes.apple.com
 HOST,play-edge.itunes.apple.com
 HOST,sandbox.itunes.apple.com
-HOST,testflight.apple.com
 HOST,tv.applemusic.com
 HOST,uts-api.itunes.apple.com
 HOST-SUFFIX,apple-dns.net
