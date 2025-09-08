@@ -65,6 +65,8 @@ HOST-SUFFIX,gemini.google.com
 HOST-SUFFIX,generativeai.google
 HOST-SUFFIX,proactivebackend-pa.googleapis.com
 HOST-SUFFIX,generativelanguage.googleapis.com
+HOST-SUFFIX,aistudio.google.com
+HOST-SUFFIX,ai.google.dev
 
 # > Google Voice
 HOST,lens.l.google.com
