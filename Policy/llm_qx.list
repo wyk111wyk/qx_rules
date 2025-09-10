@@ -54,6 +54,8 @@ HOST-KEYWORD,claude
 # repo:https://github.com/limbopro/Profiles4limbo/
 HOST,ai.google.dev
 HOST,alkalimakersuite-pa.clients6.google.com
+HOST,people-pa.clients6.google.com
+HOST,waa-pa.clients6.google.com
 HOST,generativelanguage.googleapis.com
 HOST,makersuite.google.com
 HOST-SUFFIX,in.appcenter.ms
@@ -67,6 +69,7 @@ HOST-SUFFIX,proactivebackend-pa.googleapis.com
 HOST-SUFFIX,generativelanguage.googleapis.com
 HOST-SUFFIX,aistudio.google.com
 HOST-SUFFIX,ai.google.dev
+HOST-SUFFIX,gstatic.com
 
 # > Google Voice
 HOST,lens.l.google.com
