@@ -1,0 +1,13 @@
+# 豆包
+# https://www.volcengine.com/docs
+# created by Amos 
+HOST,ark.cn-beijing.volces.com
+HOST-SUFFIX,volces.com
+HOST-SUFFIX,doubao.com
+HOST-SUFFIX,douyin.com
+HOST-SUFFIX,byteimg.com
+
+# 阿里通义
+# https://bailian.console.aliyun.com/
+HOST,dashscope.aliyuncs.com
+HOST-SUFFIX,aliyun.com
