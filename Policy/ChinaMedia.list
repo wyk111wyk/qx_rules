@@ -490,3 +490,5 @@ host-suffix,imgo.tv
 host-suffix,mgtv.com
 host-suffix,tazai.com
 
+# > voe.sx 视频托管
+host-suffix,voe.sx
