@@ -4,7 +4,6 @@
 HOST,cdn.auth0.com
 HOST,o33249.ingest.sentry.io
 HOST-SUFFIX,ai.com
-HOST-SUFFIX,challenges.cloudflare.com
 HOST,browser-intake-datadoghq.com
 HOST,chat.openai.com.cdn.cloudflare.net
 HOST,gemini.google.com
