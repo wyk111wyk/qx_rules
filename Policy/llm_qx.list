@@ -69,9 +69,11 @@ HOST-SUFFIX,generativelanguage.googleapis.com
 HOST-SUFFIX,aistudio.google.com
 HOST-SUFFIX,ai.google.dev
 HOST-SUFFIX,gstatic.com
+HOST-SUFFIX,vercel.app
 
 # > Google Voice
 HOST,lens.l.google.com
 
 # https://console.x.ai/
 HOST-SUFFIX,api.x.ai
+HOST-SUFFIX,docs.x.ai
