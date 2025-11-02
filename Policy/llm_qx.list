@@ -69,7 +69,7 @@ HOST-SUFFIX,generativelanguage.googleapis.com
 HOST-SUFFIX,aistudio.google.com
 HOST-SUFFIX,ai.google.dev
 HOST-SUFFIX,gstatic.com
-HOST-SUFFIX,vercel.app
+HOST-SUFFIX,geminiproxy-smoky-nu.vercel.app
 
 # > Google Voice
 HOST,lens.l.google.com
