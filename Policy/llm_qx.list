@@ -77,3 +77,6 @@ HOST,lens.l.google.com
 # https://console.x.ai/
 HOST-SUFFIX,api.x.ai
 HOST-SUFFIX,docs.x.ai
+
+# link.com
+HOST-SUFFIX,link.com
