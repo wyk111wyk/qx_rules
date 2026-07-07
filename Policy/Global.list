@@ -1,5 +1,6 @@
 # Amos added
 host-keyword,btdig,Proxy
+host-keyword,huggingface,Proxy
 host-suffix,rutracker.net
 host-suffix,rutracker.com
 host-suffix,141love.net
@@ -14,6 +15,7 @@ host-suffix,streamtape.com
 host-suffix,tapecontent.net
 host-suffix,javhdporn.net
 host-suffix,bestjavporn.com
+host-suffix,lmarena.ai
 
 # 国外网站
 # Global list 仍然处于持续更新中
