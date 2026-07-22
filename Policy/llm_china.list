@@ -1,3 +1,5 @@
+# ========== 原生大模型厂商 ==========
+
 # 豆包
 # https://www.volcengine.com/docs
 # created by Amos 
@@ -7,7 +9,94 @@ HOST-SUFFIX,doubao.com
 HOST-SUFFIX,douyin.com
 HOST-SUFFIX,byteimg.com
 
-# 阿里通义
+# 阿里通义千问（百炼平台）
 # https://bailian.console.aliyun.com/
 HOST,dashscope.aliyuncs.com
 HOST-SUFFIX,aliyun.com
+
+# 百度文心一言（千帆大模型平台）
+# https://qianfan.cloud.baidu.com/
+HOST,qianfan.baidubce.com
+HOST-SUFFIX,baidubce.com
+HOST-SUFFIX,baidu.com
+
+# 腾讯混元大模型
+# https://cloud.tencent.com/product/hunyuan
+HOST,hunyuan.tencentcloudapi.com
+HOST,api.hunyuan.cloud.tencent.com
+HOST-SUFFIX,tencentcloudapi.com
+HOST-SUFFIX,tencent.com
+
+# 讯飞星火大模型
+# https://xinghuo.xf-yun.cn/sparkapi
+HOST,spark-api.xf-yun.com
+HOST,spark-api-open.xf-yun.com
+HOST-SUFFIX,xf-yun.com
+HOST-SUFFIX,xfyun.cn
+
+# 智谱AI（GLM/智谱清言）
+# https://open.bigmodel.cn/
+HOST,open.bigmodel.cn
+HOST-SUFFIX,bigmodel.cn
+
+# 深度求索 DeepSeek
+# https://api-docs.deepseek.com/zh-cn/
+HOST,api.deepseek.com
+HOST-SUFFIX,deepseek.com
+
+# 月之暗面 Moonshot（Kimi）
+# https://platform.moonshot.cn/docs
+HOST,api.moonshot.cn
+HOST-SUFFIX,moonshot.cn
+
+# 百川智能
+# https://platform.baichuan-ai.com/docs/api
+HOST,api.baichuan-ai.com
+HOST-SUFFIX,baichuan-ai.com
+
+# 零一万物（Yi大模型）
+# https://platform.lingyiwanwu.com
+HOST,api.lingyiwanwu.com
+HOST-SUFFIX,lingyiwanwu.com
+
+# 阶跃星辰 StepFun
+# https://platform.stepfun.com/docs
+HOST,api.stepfun.com
+HOST-SUFFIX,stepfun.com
+
+# MiniMax（海螺AI）
+# https://platform.minimaxi.com/document
+HOST,api.minimax.chat
+HOST-SUFFIX,minimaxi.com
+HOST-SUFFIX,minimax.chat
+
+# ========== 中转/聚合平台 ==========
+
+# 硅基流动 SiliconFlow
+# https://cloud.siliconflow.cn/
+HOST,api.siliconflow.cn
+HOST-SUFFIX,siliconflow.cn
+
+# 酷站AI Koozhan
+# https://koozhan.com/
+HOST,api.koozhan.com
+HOST-SUFFIX,koozhan.com
+
+# API易
+# https://docs.apiyi.com/
+HOST,api.apiyi.com
+HOST-SUFFIX,apiyi.com
+
+# 腾讯云 TokenHub
+# https://cloud.tencent.com/product/tokenhub
+HOST,tokenhub.tencentmaas.com
+HOST,api.lkeap.cloud.tencent.com
+HOST-SUFFIX,tencentmaas.com
+
+# OpenRouter（海外全模型聚合）
+# https://openrouter.ai/
+HOST,openrouter.ai
+HOST-SUFFIX,openrouter.ai
+
+# 淘宝智谱
+HOST-SUFFIX,cmkey.cn
