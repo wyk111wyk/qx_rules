@@ -1,0 +1,14 @@
+# NAME: GitHub SPM
+# AUTHOR: wyk111wyk
+# REPO: https://github.com/wyk111wyk/qx_rules
+# UPDATED: 2026-08-28
+# 用途: Xcode 从 GitHub 拉取 / 下载 Swift Package Manager 依赖时，统一走可手动切换的策略组 GitHubSPM
+# 在 Quantumult X 策略组中手动选择连接途径：最佳节点 / 香港节点 / 美国节点 / direct / proxy
+# HOST: 2
+# HOST-SUFFIX: 3
+# TOTAL: 5
+HOST-SUFFIX,github.com,GitHubSPM
+HOST-SUFFIX,githubusercontent.com,GitHubSPM
+HOST,codeload.github.com,GitHubSPM
+HOST,api.github.com,GitHubSPM
+HOST-SUFFIX,swiftpackageindex.com,GitHubSPM
