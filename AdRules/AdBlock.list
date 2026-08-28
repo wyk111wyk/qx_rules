@@ -50,40 +50,68 @@ HOST-SUFFIX,vi.l.qq.com,direct
 
 # 2026-08-28 新增: 防止上游 AdRules/Advertising.conf hostname 段误拦主流 App 子域
 # 此前 edith.xiaohongshu.com 等被错误列入 reject，导致小红书等 App 无法加载
-HOST-SUFFIX,xiaohongshu.com,direct  # 小红书主域(含 edith/ci/www/edit/api 等子域)
-HOST-SUFFIX,xhscdn.com,direct  # 小红书图片 CDN
-HOST-SUFFIX,weibo.com,direct  # 微博主域(含 biz/alitui/sdkapp 等子域)
-HOST-SUFFIX,zhihu.com,direct  # 知乎主域(含 sugar/udd1i5/web-analytics 等子域)
-HOST-SUFFIX,amap.com,direct  # 高德地图(含 aos-info/logs/optimus-ads/render-oss/sns 等子域)
-HOST-SUFFIX,bilibili.com,direct  # B站主域(含 data 子域)
-HOST-SUFFIX,weixin.qq.com,direct  # 微信公众号(mp 子域)
-HOST-SUFFIX,douyin.com,direct  # 抖音主域(含 webcast-open 子域)
-HOST-SUFFIX,map.qq.com,direct  # 腾讯地图(含 4gimg 子域)
+#  小红书主域(含 edith/ci/www/edit/api 等子域)
+HOST-SUFFIX,xiaohongshu.com,direct
+#  小红书图片 CDN
+HOST-SUFFIX,xhscdn.com,direct
+#  微博主域(含 biz/alitui/sdkapp 等子域)
+HOST-SUFFIX,weibo.com,direct
+#  知乎主域(含 sugar/udd1i5/web-analytics 等子域)
+HOST-SUFFIX,zhihu.com,direct
+#  高德地图(含 aos-info/logs/optimus-ads/render-oss/sns 等子域)
+HOST-SUFFIX,amap.com,direct
+#  B站主域(含 data 子域)
+HOST-SUFFIX,bilibili.com,direct
+#  微信公众号(mp 子域)
+HOST-SUFFIX,weixin.qq.com,direct
+#  抖音主域(含 webcast-open 子域)
+HOST-SUFFIX,douyin.com,direct
+#  腾讯地图(含 4gimg 子域)
+HOST-SUFFIX,map.qq.com,direct
 
 # 2026-08-28 二轮: 防止上游广告源误拦主流 App 核心 API
 # 上一轮已加小红书/微博/知乎/高德/B站/微信/抖音/腾讯地图/小红书 CDN
 # 本轮新增金融/Apple/GitHub/淘宝/京东/QQ 等核心 App 父域
-HOST-SUFFIX,alipay.com,direct  # 支付宝核心域名(含 amdc/collect/alipayobjects 等子域)
-HOST-SUFFIX,taobao.com,direct  # 淘宝核心域名(含 m.taobao.com/acs/acsm 等子域)
-HOST-SUFFIX,jd.com,direct  # 京东核心域名(含 api.m.jd.com/xlog/janapi 等子域)
-HOST-SUFFIX,360buyimg.com,direct  # 京东图片 CDN
-HOST-SUFFIX,alicdn.com,direct  # 阿里 CDN(淘宝/天猫/支付宝/高德 共用)
-HOST-SUFFIX,icbc.com.cn,direct  # 工商银行
-HOST-SUFFIX,cmbchina.com,direct  # 招商银行
-HOST-SUFFIX,ccb.com,direct  # 建设银行
-HOST-SUFFIX,pingan.com.cn,direct  # 平安(银行/保险/证券)
-HOST-SUFFIX,apple.com,direct  # Apple 全服务(iCloud/App Store/Music/TV 等,含 advertising.apple.com 等子域)
-HOST-SUFFIX,mzstatic.com,direct  # Apple 应用商店 CDN
-HOST-SUFFIX,icloud.com,direct  # Apple iCloud
-HOST-SUFFIX,github.com,direct  # GitHub(注: GitHubSPM 已单独处理 codeload/objects/api/swiftpackageindex)
-HOST-SUFFIX,githubusercontent.com,direct  # GitHub 资源(含 raw./objects. 等子域)
-HOST-SUFFIX,qq.com,direct  # QQ/QQ邮箱/QQ游戏(含 3gimg/appsupport/api2.helper 等子域)
+#  支付宝核心域名(含 amdc/collect/alipayobjects 等子域)
+HOST-SUFFIX,alipay.com,direct
+#  淘宝核心域名(含 m.taobao.com/acs/acsm 等子域)
+HOST-SUFFIX,taobao.com,direct
+#  京东核心域名(含 api.m.jd.com/xlog/janapi 等子域)
+HOST-SUFFIX,jd.com,direct
+#  京东图片 CDN
+HOST-SUFFIX,360buyimg.com,direct
+#  阿里 CDN(淘宝/天猫/支付宝/高德 共用)
+HOST-SUFFIX,alicdn.com,direct
+#  工商银行
+HOST-SUFFIX,icbc.com.cn,direct
+#  招商银行
+HOST-SUFFIX,cmbchina.com,direct
+#  建设银行
+HOST-SUFFIX,ccb.com,direct
+#  平安(银行/保险/证券)
+HOST-SUFFIX,pingan.com.cn,direct
+#  Apple 全服务(iCloud/App Store/Music/TV 等
+HOST-SUFFIX,apple.com,direct
+#  Apple 应用商店 CDN
+HOST-SUFFIX,mzstatic.com,direct
+#  Apple iCloud
+HOST-SUFFIX,icloud.com,direct
+#  GitHub(注: GitHubSPM 已单独处理 codeload/objects/api/swiftpackageindex)
+HOST-SUFFIX,github.com,direct
+#  GitHub 资源(含 raw./objects. 等子域)
+HOST-SUFFIX,githubusercontent.com,direct
+#  QQ/QQ邮箱/QQ游戏(含 3gimg/appsupport/api2.helper 等子域)
+HOST-SUFFIX,qq.com,direct
 
 # 2026-08-28 二轮补: 主流 App 子域兜底
-HOST-SUFFIX,58.com,direct  # 58同城(用户可能用)
-HOST-SUFFIX,hicloud.com,direct  # 华为 Hicloud 云同步
-HOST-SUFFIX,mi.com,direct  # 小米核心 API(米家/金融/商城)
-HOST-SUFFIX,miui.com,direct  # 小米 MIUI 系统服务
+#  58同城(用户可能用)
+HOST-SUFFIX,58.com,direct
+#  华为 Hicloud 云同步
+HOST-SUFFIX,hicloud.com,direct
+#  小米核心 API(米家/金融/商城)
+HOST-SUFFIX,mi.com,direct
+#  小米 MIUI 系统服务
+HOST-SUFFIX,miui.com,direct
 # ---------- [2] 广告拦截 / 隐私追踪 / 运营劫持 (reject) ----------
 HOST-SUFFIX,0.myikas.com,reject
 HOST-SUFFIX,0.net.easyjet.com,reject
