@@ -57,3 +57,77 @@ HOST-SUFFIX,stripe.com
 HOST-SUFFIX,turn.livekit.cloud
 IP-CIDR,24.199.123.28/32
 IP-CIDR,64.23.132.171/32
+
+# ========== 海外 LLM 聚合平台 ==========
+# 多模型聚合类(统一接入 OpenAI/Anthropic/Google/xAI/Mistral 等)
+
+# OpenRouter (海外全模型聚合先驱)
+# https://openrouter.ai/
+HOST-SUFFIX,openrouter.ai
+
+# Poe (Quora 的 AI 聚合平台)
+# https://poe.com/
+HOST-SUFFIX,poe.com
+
+# Perplexity (AI 搜索)
+# https://www.perplexity.ai/
+HOST-SUFFIX,perplexity.ai
+
+# You.com (AI 搜索聚合)
+# https://you.com/
+HOST-SUFFIX,you.com
+
+# Phind (面向开发者的 AI 搜索)
+# https://www.phind.com/
+HOST-SUFFIX,phind.com
+
+# HuggingFace / HuggingChat
+# https://huggingface.co/chat/
+HOST-SUFFIX,huggingface.co
+HOST-SUFFIX,hf.co
+
+# Mistral Le Chat
+# https://chat.mistral.ai/
+HOST-SUFFIX,mistral.ai
+HOST,chat.mistral.ai
+
+# OfoxAI (多模型聚合)
+# https://ofox.ai/
+HOST-SUFFIX,ofox.ai
+
+# OminiGate (多模型聚合)
+# https://ominigate.com/
+HOST-SUFFIX,ominigate.com
+
+# Requesty (多模型聚合)
+# https://requesty.ai/
+HOST-SUFFIX,requesty.ai
+
+# AIHubMix (多模型聚合)
+# https://aihubmix.com/
+HOST-SUFFIX,aihubmix.com
+
+# ========== 国内中转站 (转发海外 LLM API) ==========
+# 注: 服务商在国内，但转发的是 OpenAI/Anthropic/Google 等海外 API，
+#     必须走代理组才能稳定访问（force-policy=大语言模型 已覆盖）
+
+# API2D
+# https://api2d.com/
+HOST-SUFFIX,api2d.com
+HOST,api.api2d.com
+
+# CloseAI (亚洲最大企业级 AI 中转)
+# https://www.closeai-asia.com/
+HOST-SUFFIX,closeai-asia.com
+HOST-SUFFIX,closeai.com
+HOST,api.closeai-proxy.xyz
+
+# OpenAI-SB (老牌中转)
+# https://openai-sb.com/
+HOST-SUFFIX,openai-sb.com
+HOST,api.openai-sb.com
+
+# OhMyGPT (多模型支持)
+# https://ohmygpt.com/
+HOST-SUFFIX,ohmygpt.com
+HOST,api.ohmygpt.com

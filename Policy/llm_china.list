@@ -93,5 +93,9 @@ HOST,tokenhub.tencentmaas.com
 HOST,api.lkeap.cloud.tencent.com
 HOST-SUFFIX,tencentmaas.com
 
-# 注意：海外全模型聚合服务（OpenRouter / API2D / CloseAI 等）应在 llm_qx.list 而非本列表
-# 此前误归条目（openrouter.ai、cmkey.cn）已删除
+# 淘宝智谱（智谱 API Key 第三方分发平台，国内电商）
+# 注：此前误归到 OpenRouter 段并被删除，现恢复
+HOST-SUFFIX,cmkey.cn
+
+# 海外全模型聚合 / 中转站（OpenRouter、Poe、Perplexity、API2D、CloseAI 等）
+# 已统一移入 Policy/llm_qx.list，路由 → 大语言模型（境外代理组）
