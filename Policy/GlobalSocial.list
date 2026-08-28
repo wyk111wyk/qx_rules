@@ -95,7 +95,6 @@ host-suffix,ap3.agora.io
 host-suffix,kakao.com
 host-suffix,kakaocorp.com
 host-suffix,kakao.co.kr
-host-suffix,kakao.com
 host-suffix,kakaocdn.net
 ip-cidr,1.201.0.0/24
 ip-cidr,103.246.56.0/22
@@ -225,7 +224,6 @@ host-suffix,github-cloud.s3.amazonaws.com
 
 # >> Github Other
 host-suffix,thegithubshop.com
-host-suffix,githubuniverse.com
 host-suffix,githubnext.com
 host-suffix,githubhackathon.com
 host-suffix,myoctocat.com
@@ -559,7 +557,6 @@ host-keyword,sharepoint
 host-suffix,sharepoint.com
 host-suffix,sharepoint.cn Domestic
 host-suffix,sharepointonline.com
-host-suffix,svc.ms
 
 # > OneNote
 host-keyword,onenote
@@ -636,8 +633,6 @@ host-suffix,breakdown.me
 host-suffix,centralvalidation.com
 host-suffix,ch9.ms
 host-suffix,charticulator.com
-host-suffix,cloudapp.net
-host-suffix,cloudappsecurity.com
 host-suffix,cloudappsecurity.com
 host-suffix,crmdynint-gcc.com
 host-suffix,crmdynint.com
@@ -706,7 +701,6 @@ host-suffix,microsoftlatamaitour.com
 host-suffix,microsoftlinc.com
 host-suffix,microsoftonline-p.com
 host-suffix,microsoftonline-p.net
-host-suffix,microsoftonline.com
 host-suffix,microsoftpartnercommunity.com
 host-suffix,microsoftready.com
 host-suffix,microsoftsiteselection.com
@@ -774,7 +768,6 @@ host-suffix,sfx.ms
 host-suffix,staffhub.ms
 host-suffix,successwithteams.com
 host-suffix,surface.com
-host-suffix,svc.ms
 host-suffix,syncshop.cn
 host-suffix,sysinternals.com
 host-suffix,tailwindtraders.com
@@ -816,7 +809,6 @@ host-suffix,windowsupdate.com Domestic
 host-suffix,aka.ms
 host-suffix,msecnd.net
 host-suffix,live.com.akadns.net
-host-suffix,spoprod-a.akamaihd.net
 host-suffix,microsoft.com.akadns.net
 host-suffix,microsoft.com.nsatc.net
 host-suffix,oaspapps.com.akadns.net
@@ -829,10 +821,8 @@ host-suffix,cs11.wpc.v0cdn.net
 host-suffix,cs9.wac.phicdn.net
 host-suffix,b.akamaiedge.net
 host-suffix,livetileedge.dsx.mp.microsoft.com.edgekey.net
-host-suffix,spoprod-a.akamaihd.net
 host-suffix,windows.com.akadns.net
 host-suffix,prod-video-cms-rt-microsoft-com.akamaized.net
-host-suffix,spoprod-a.akamaihd.net
 host-suffix,statics-marketingsites-eas-ms-com.akamaized.net
 host-suffix,statics-marketingsites-neu-ms-com.akamaized.net
 host-suffix,vip5.afdorigin-prod-am02.afdogw.com
