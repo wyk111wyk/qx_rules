@@ -1,27 +1,46 @@
-# https://openai.com/
-# created by blackmatrix7 
-# repo:https://github.com/blackmatrix7/ios_rule_script
-HOST,cdn.auth0.com
-HOST,o33249.ingest.sentry.io
-HOST-SUFFIX,ai.com
+# 境外大模型 (LLM) 分流规则
+# 合并自 blackmatrix7/ios_rule_script 最新版 (刷新于 2026-08-28)
+# 来源分类: OpenAI, Anthropic, Claude, BardAI, Gemini, Grok
+# 路由由 AmosQxRule.conf 的 force-policy=大语言模型 统一控制
+HOST,ai.google.dev
+HOST,alkalimakersuite-pa.clients6.google.com
 HOST,browser-intake-datadoghq.com
+HOST,cdn.usefathom.com
 HOST,chat.openai.com.cdn.cloudflare.net
-HOST,gemini.google.com
+HOST,generativelanguage.googleapis.com
+HOST,makersuite.google.com
 HOST,openai-api.arkoselabs.com
 HOST,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
 HOST,openaicomproductionae4b.blob.core.windows.net
 HOST,production-openaicom-storage.azureedge.net
+HOST,servd-anthropic-website.b-cdn.net
 HOST,static.cloudflareinsights.com
+HOST-KEYWORD,colab
+HOST-KEYWORD,developerprofiles
+HOST-KEYWORD,generativelanguage
+HOST-KEYWORD,openai
+HOST-SUFFIX,ai.com
 HOST-SUFFIX,algolia.net
+HOST-SUFFIX,anthropic.com
 HOST-SUFFIX,api.statsig.com
+HOST-SUFFIX,api.x.ai
+HOST-SUFFIX,apis.google.com
 HOST-SUFFIX,auth0.com
+HOST-SUFFIX,bard.google.com
 HOST-SUFFIX,chatgpt.com
 HOST-SUFFIX,chatgpt.livekit.cloud
+HOST-SUFFIX,claude.ai
 HOST-SUFFIX,client-api.arkoselabs.com
+HOST-SUFFIX,deepmind.com
+HOST-SUFFIX,deepmind.google
+HOST-SUFFIX,docs.x.ai
 HOST-SUFFIX,events.statsigapi.net
 HOST-SUFFIX,featuregates.org
+HOST-SUFFIX,gemini.google.com
+HOST-SUFFIX,generativeai.google
 HOST-SUFFIX,host.livekit.cloud
 HOST-SUFFIX,identrust.com
+HOST-SUFFIX,in.appcenter.ms
 HOST-SUFFIX,intercom.io
 HOST-SUFFIX,intercomcdn.com
 HOST-SUFFIX,launchdarkly.com
@@ -31,52 +50,10 @@ HOST-SUFFIX,observeit.net
 HOST-SUFFIX,openai.com
 HOST-SUFFIX,openaiapi-site.azureedge.net
 HOST-SUFFIX,openaicom.imgix.net
+HOST-SUFFIX,proactivebackend-pa.googleapis.com
 HOST-SUFFIX,segment.io
 HOST-SUFFIX,sentry.io
 HOST-SUFFIX,stripe.com
 HOST-SUFFIX,turn.livekit.cloud
-HOST-KEYWORD,openai
 IP-CIDR,24.199.123.28/32
 IP-CIDR,64.23.132.171/32
-IP-ASN,20473
-
-# https://claude.ai/
-# created by limbopro
-# repo:https://github.com/limbopro/Profiles4limbo/
-HOST,cdn.usefathom.com
-HOST-SUFFIX,anthropic.com
-HOST-SUFFIX,claude.ai
-HOST-KEYWORD,claude
-
-# https://bard.google.com/
-# created by limbopro
-# repo:https://github.com/limbopro/Profiles4limbo/
-HOST,ai.google.dev
-HOST,alkalimakersuite-pa.clients6.google.com
-HOST,people-pa.clients6.google.com
-HOST,waa-pa.clients6.google.com
-HOST,generativelanguage.googleapis.com
-HOST,makersuite.google.com
-HOST-SUFFIX,in.appcenter.ms
-HOST-SUFFIX,ogs.google.com
-HOST-SUFFIX,bard.google.com
-HOST-SUFFIX,deepmind.com
-HOST-SUFFIX,deepmind.google
-HOST-SUFFIX,gemini.google.com
-HOST-SUFFIX,generativeai.google
-HOST-SUFFIX,proactivebackend-pa.googleapis.com
-HOST-SUFFIX,generativelanguage.googleapis.com
-HOST-SUFFIX,aistudio.google.com
-HOST-SUFFIX,ai.google.dev
-HOST-SUFFIX,gstatic.com
-HOST-SUFFIX,geminiproxy-smoky-nu.vercel.app
-
-# > Google Voice
-HOST,lens.l.google.com
-
-# https://console.x.ai/
-HOST-SUFFIX,api.x.ai
-HOST-SUFFIX,docs.x.ai
-
-# link.com
-HOST-SUFFIX,link.com
