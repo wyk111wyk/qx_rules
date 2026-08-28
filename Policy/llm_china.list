@@ -93,10 +93,5 @@ HOST,tokenhub.tencentmaas.com
 HOST,api.lkeap.cloud.tencent.com
 HOST-SUFFIX,tencentmaas.com
 
-# OpenRouter（海外全模型聚合）
-# https://openrouter.ai/
-HOST,openrouter.ai
-HOST-SUFFIX,openrouter.ai
-
-# 淘宝智谱
-HOST-SUFFIX,cmkey.cn
+# 注意：海外全模型聚合服务（OpenRouter / API2D / CloseAI 等）应在 llm_qx.list 而非本列表
+# 此前误归条目（openrouter.ai、cmkey.cn）已删除
