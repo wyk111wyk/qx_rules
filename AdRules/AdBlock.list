@@ -14,36 +14,23 @@
 # ================================================================
 
 # ---------- [1] 规则修正：误屏蔽放行 (direct) ----------
+# 注意: Google/Apple 等境外子域不在此处钉 direct —— 交由 Global*/AppleProxy 列表(force-policy=最佳节点/苹果服务)
+#       处理, 避免本段先匹配先生效把它们抢成直连(与 github 同类坑)。
 # 来源: 墨鱼 Unbreak 清单。置顶保证优先于下方 reject 生效。
-HOST-SUFFIX,alt1-mtalk.google.com,direct
-HOST-SUFFIX,alt2-mtalk.google.com,direct
-HOST-SUFFIX,alt3-mtalk.google.com,direct
-HOST-SUFFIX,alt4-mtalk.google.com,direct
-HOST-SUFFIX,alt5-mtalk.google.com,direct
-HOST-SUFFIX,alt6-mtalk.google.com,direct
-HOST-SUFFIX,alt7-mtalk.google.com,direct
-HOST-SUFFIX,alt8-mtalk.google.com,direct
 HOST-SUFFIX,analytics.strava.com,direct
 HOST-SUFFIX,app.adjust.com,direct
 HOST-SUFFIX,app.appsflyer.com,direct
 HOST-SUFFIX,bdtj.tagtic.cn,direct
 HOST-SUFFIX,bilivideo.cn,direct
 HOST-SUFFIX,bilivideo.com,direct
-HOST-SUFFIX,blog.google,direct
-HOST-SUFFIX,clientservices.googleapis.com,direct
-HOST-SUFFIX,dl.google.com,direct
-HOST-SUFFIX,dl.l.google.com,direct
 HOST-SUFFIX,fairplay.l.qq.com,direct
-HOST-SUFFIX,googletraveladservices.com,direct
 HOST-SUFFIX,livew.l.qq.com,direct
 HOST-SUFFIX,log.mmstat.com,direct
 HOST-SUFFIX,msg.umeng.com,direct
 HOST-SUFFIX,msg.umengcloud.com,direct
-HOST-SUFFIX,mtalk.google.com,direct
 HOST-SUFFIX,stats.qiumibao.com,direct
 HOST-SUFFIX,sycm.mmstat.com,direct
 HOST-SUFFIX,umiwi.com,direct
-HOST-SUFFIX,update.googleapis.com,direct
 HOST-SUFFIX,vd.l.qq.com,direct
 HOST-SUFFIX,vi.l.qq.com,direct
 
@@ -91,15 +78,9 @@ HOST-SUFFIX,ccb.com,direct
 #  平安(银行/保险/证券)
 HOST-SUFFIX,pingan.com.cn,direct
 #  Apple 全服务(iCloud/App Store/Music/TV 等
-HOST-SUFFIX,apple.com,direct
 #  Apple 应用商店 CDN
-HOST-SUFFIX,mzstatic.com,direct
 #  Apple iCloud
-HOST-SUFFIX,icloud.com,direct
-#  GitHub(注: GitHubSPM 已单独处理 codeload/objects/api/swiftpackageindex)
-HOST-SUFFIX,github.com,direct
-#  GitHub 资源(含 raw./objects. 等子域)
-HOST-SUFFIX,githubusercontent.com,direct
+#  注: github.com / githubusercontent.com 不在此处放行，交由 GitHubSPM 列表(force-policy=最佳节点) 处理，避免被本段 direct 抢先匹配
 #  QQ/QQ邮箱/QQ游戏(含 3gimg/appsupport/api2.helper 等子域)
 HOST-SUFFIX,qq.com,direct
 
