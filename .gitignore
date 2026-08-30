@@ -2,3 +2,4 @@
 
 # local workbuddy state (never commit)
 .workbuddy/
+.DS_Store
