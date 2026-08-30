@@ -6,6 +6,9 @@
 HOST,ark.cn-beijing.volces.com
 HOST-SUFFIX,volces.com
 HOST-SUFFIX,doubao.com
+# 注: douyin.com 在 AdRules/AdBlock.list 顶部的「规则修正 direct 放行」白名单中，
+#     该订阅排在最前，会先于本文件命中 → douyin.com 实际恒为直连。
+#     此处保留仅为记录字节系归属，删除与否不影响行为（抖音本就应直连）。
 HOST-SUFFIX,douyin.com
 HOST-SUFFIX,byteimg.com
 

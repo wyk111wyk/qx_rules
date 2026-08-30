@@ -1,133 +1,450 @@
-# 境外大模型 (LLM) 分流规则
-# 合并自 blackmatrix7/ios_rule_script 最新版 (刷新于 2026-08-28)
-# 来源分类: OpenAI, Anthropic, Claude, BardAI, Gemini, Grok
-# 路由由 AmosQxRule.conf 的 force-policy=大语言模型 统一控制
-HOST,ai.google.dev
-HOST,alkalimakersuite-pa.clients6.google.com
-HOST,browser-intake-datadoghq.com
-HOST,cdn.usefathom.com
-HOST,chat.openai.com.cdn.cloudflare.net
-HOST,generativelanguage.googleapis.com
-HOST,makersuite.google.com
-HOST,openai-api.arkoselabs.com
-HOST,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
-HOST,openaicomproductionae4b.blob.core.windows.net
-HOST,production-openaicom-storage.azureedge.net
-HOST,servd-anthropic-website.b-cdn.net
-HOST,static.cloudflareinsights.com
-HOST-KEYWORD,colab
-HOST-KEYWORD,developerprofiles
-HOST-KEYWORD,generativelanguage
-HOST-KEYWORD,openai
-HOST-SUFFIX,ai.com
-HOST-SUFFIX,algolia.net
-HOST-SUFFIX,anthropic.com
-HOST-SUFFIX,api.statsig.com
-HOST-SUFFIX,api.x.ai
-HOST-SUFFIX,apis.google.com
-HOST-SUFFIX,auth0.com
-HOST-SUFFIX,bard.google.com
+# =============================================================
+# 境外大模型 / AI 服务 分流规则
+# 路由: AmosQxRule.conf → filter_remote → force-policy=境外LLM
+# 核查日期: 2026-08-30
+#
+# ── 分区索引 ──────────────────────────────────────────────
+#   [A] OpenAI / ChatGPT
+#   [B] Anthropic / Claude
+#   [C] Google Gemini / AI Studio / NotebookLM / Flow
+#   [D] xAI / Grok
+#   [E] Meta AI / Llama
+#   [F] Microsoft Copilot
+#   [G] Mistral AI
+#   [H] Perplexity / AI 搜索
+#   [I] 其他模型厂商 (Cohere / AI21 / Stability / Character / DeepL ...)
+#   [J] AI 编程工具 (Cursor / Windsurf / Copilot / v0 / Bolt / Lovable ...)
+#   [K] API 聚合 & 推理平台 (OpenRouter / Groq / Together / Fireworks ...)
+#   [L] 生成式 AI — 图像 / 音频 / 视频 (Midjourney / Suno / ElevenLabs ...)
+#   [M] 国内中转站 —— 已移除，原因见文件末尾（被 filter_local 的 geoip,cn,direct 抢先）
+#
+# ── 维护说明 ──────────────────────────────────────────────
+#   1. 每条规则上方注释为该服务官网，便于日后复核是否仍有效。
+#   2. 本文件只收录「AI 服务自有域名」。通用第三方组件
+#      (Sentry / Segment / Stripe / Intercom / Auth0 / Datadog /
+#      Cloudflare Insights / Algolia / Statsig / LaunchDarkly 等)
+#      已全部移除 —— 它们不属于 LLM，且把 stripe.com 全部代理会
+#      影响支付链路。如确有个别服务依赖，单独加回即可。
+#   3. 已刻意剔除过宽的规则：apis.google.com(全部 Google API)、
+#      ai.com(纯跳转页，归属多次变更)、developerprofiles(过泛关键词)、
+#      identrust.com(证书机构，无分流意义)。
+# =============================================================
+
+
+# =============================================================
+# [A] OpenAI / ChatGPT
+# https://openai.com/  https://chatgpt.com/  https://platform.openai.com/
+# =============================================================
+
+# ── 主域名（后缀规则已覆盖 chat.openai.com / api.openai.com /
+#    platform.openai.com / sora.chatgpt.com / ab.chatgpt.com 等全部子域）
+HOST-SUFFIX,openai.com
 HOST-SUFFIX,chatgpt.com
-HOST-SUFFIX,chatgpt.livekit.cloud
-HOST-SUFFIX,claude.ai
-HOST-SUFFIX,client-api.arkoselabs.com
-HOST-SUFFIX,deepmind.com
-HOST-SUFFIX,deepmind.google
-HOST-SUFFIX,docs.x.ai
-HOST-SUFFIX,events.statsigapi.net
-HOST-SUFFIX,featuregates.org
-HOST-SUFFIX,gemini.google.com
-HOST-SUFFIX,generativeai.google
-HOST-SUFFIX,host.livekit.cloud
-HOST-SUFFIX,identrust.com
-HOST-SUFFIX,in.appcenter.ms
-HOST-SUFFIX,intercom.io
-HOST-SUFFIX,intercomcdn.com
-HOST-SUFFIX,launchdarkly.com
 HOST-SUFFIX,oaistatic.com
 HOST-SUFFIX,oaiusercontent.com
-HOST-SUFFIX,observeit.net
-HOST-SUFFIX,openai.com
+
+# ── 关键词兜底：命中自建/多云镜像，如 xxx-openai.azure.com
+HOST-KEYWORD,openai
+
+# ── OpenAI 自有 CDN / 存储 / 边缘节点（不在上述后缀下）
+HOST,chat.openai.com.cdn.cloudflare.net
+HOST,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net
+HOST,openaicomproductionae4b.blob.core.windows.net
+HOST,openaiassets.blob.core.windows.net
+HOST,production-openaicom-storage.azureedge.net
 HOST-SUFFIX,openaiapi-site.azureedge.net
 HOST-SUFFIX,openaicom.imgix.net
-HOST-SUFFIX,proactivebackend-pa.googleapis.com
-HOST-SUFFIX,segment.io
-HOST-SUFFIX,sentry.io
-HOST-SUFFIX,stripe.com
+
+# ── Arkose Labs：ChatGPT 人机验证，缺失会导致登录/注册卡死
+HOST,openai-api.arkoselabs.com
+HOST-SUFFIX,client-api.arkoselabs.com
+
+# ── LiveKit：ChatGPT 语音模式 / Realtime 的 WebRTC 通道
+HOST-SUFFIX,chatgpt.livekit.cloud
 HOST-SUFFIX,turn.livekit.cloud
+HOST-SUFFIX,host.livekit.cloud
+
+# ── OpenAI 官网站点挂载的少量独立 IP（来源 blackmatrix7）
 IP-CIDR,24.199.123.28/32
 IP-CIDR,64.23.132.171/32
 
-# ========== 海外 LLM 聚合平台 ==========
-# 多模型聚合类(统一接入 OpenAI/Anthropic/Google/xAI/Mistral 等)
+# ── Sora：OpenAI 已于 2026-03-25 宣布关停 App / API / 网站，
+#    规则保留但注释掉，待官方彻底下线后可整段删除。
+# HOST-SUFFIX,sora.com
 
-# OpenRouter (海外全模型聚合先驱)
-# https://openrouter.ai/
-HOST-SUFFIX,openrouter.ai
 
-# Poe (Quora 的 AI 聚合平台)
-# https://poe.com/
-HOST-SUFFIX,poe.com
+# =============================================================
+# [B] Anthropic / Claude
+# https://claude.ai/  https://www.anthropic.com/
+# =============================================================
 
-# Perplexity (AI 搜索)
-# https://www.perplexity.ai/
+# 后缀已覆盖 api.anthropic.com / console.anthropic.com / claude.ai 全家
+HOST-SUFFIX,anthropic.com
+HOST-SUFFIX,claude.ai
+# claude.com 为 Anthropic 持有的备用域名，当前重定向至 claude.ai
+HOST-SUFFIX,claude.com
+# claudeusercontent.com：Artifacts / 用户生成内容的承载域
+HOST-SUFFIX,claudeusercontent.com
+
+# ── Anthropic 官网 CDN（b-cdn.net 下只取这一条）
+HOST,servd-anthropic-website.b-cdn.net
+
+
+# =============================================================
+# [C] Google Gemini / AI Studio / NotebookLM / Flow
+# https://gemini.google.com/  https://aistudio.google.com/
+# https://notebooklm.google.com/
+# =============================================================
+# 注意：此处刻意不使用 apis.google.com 后缀规则 —— 它会把整个
+#       Google API 体系（地图、登录、Play 等）一并代理，范围过大。
+#       改为按需逐条列出 AI 相关主机名。
+
+# ── 对话 / 开发者平台
+HOST-SUFFIX,gemini.google.com
+HOST-SUFFIX,bard.google.com
+HOST,aistudio.google.com
+HOST-SUFFIX,notebooklm.google.com
+HOST-SUFFIX,ai.google.dev
+HOST-SUFFIX,generativeai.google
+HOST-SUFFIX,deepmind.google
+HOST-SUFFIX,labs.google
+HOST-SUFFIX,aitestkitchen.withgoogle.com
+
+# ── Gemini API 及配套后端
+HOST,generativelanguage.googleapis.com
+HOST-SUFFIX,proactivebackend-pa.googleapis.com
+HOST,alkalimakersuite-pa.clients6.google.com
+HOST-KEYWORD,generativelanguage
+
+# ── Google 编程智能体（Antigravity IDE / Jules 异步 Agent）
+HOST-SUFFIX,antigravity.google
+HOST-SUFFIX,jules.google
+
+# ── 视频 / 创意工具 Flow（Veo、Whisk 已并入）
+HOST-SUFFIX,flow.google
+
+# ── Google Colab（AI/ML 开发环境）
+HOST-KEYWORD,colab
+
+
+# =============================================================
+# [D] xAI / Grok
+# https://grok.com/  https://x.ai/  https://console.x.ai/
+# =============================================================
+# 后缀 x.ai 一并覆盖 api.x.ai / console.x.ai / accounts.x.ai / docs.x.ai
+HOST-SUFFIX,x.ai
+HOST-SUFFIX,grok.com
+
+
+# =============================================================
+# [E] Meta AI / Llama
+# https://www.meta.ai/  https://www.llama.com/
+# =============================================================
+HOST-SUFFIX,meta.ai
+HOST-SUFFIX,ai.meta.com
+HOST-SUFFIX,llama.com
+HOST-SUFFIX,llama-api.meta.com
+
+
+# =============================================================
+# [F] Microsoft Copilot
+# https://copilot.microsoft.com/
+# =============================================================
+HOST-SUFFIX,copilot.microsoft.com
+HOST-SUFFIX,copilotstudio.microsoft.com
+HOST-SUFFIX,microsoftcopilot.com
+
+
+# =============================================================
+# [G] Mistral AI（Le Chat / La Plateforme / Codestral）
+# https://chat.mistral.ai/
+# =============================================================
+# 后缀已覆盖 chat / api / codestral / console / files 全部子域
+HOST-SUFFIX,mistral.ai
+
+
+# =============================================================
+# [H] Perplexity / AI 搜索
+# https://www.perplexity.ai/  https://you.com/  https://www.phind.com/
+# =============================================================
 HOST-SUFFIX,perplexity.ai
-
-# You.com (AI 搜索聚合)
-# https://you.com/
+HOST-SUFFIX,perplexity.com
+# pplx.ai：Perplexity 的短链与分享域名
+HOST-SUFFIX,pplx.ai
 HOST-SUFFIX,you.com
-
-# Phind (面向开发者的 AI 搜索)
-# https://www.phind.com/
 HOST-SUFFIX,phind.com
 
-# HuggingFace / HuggingChat
+
+# =============================================================
+# [I] 其他模型厂商
+# =============================================================
+
+# Cohere（Command 系列，RAG 场景常用）
+# https://cohere.com/
+HOST-SUFFIX,cohere.com
+HOST-SUFFIX,cohere.ai
+
+# AI21 Labs（Jurassic 系列）
+# https://www.ai21.com/
+HOST-SUFFIX,ai21.com
+
+# Stability AI（Stable Diffusion 官方）
+# https://stability.ai/
+HOST-SUFFIX,stability.ai
+
+# Character.AI
+# https://character.ai/
+HOST-SUFFIX,character.ai
+
+# DeepL（AI 翻译，部分地区直连不稳）
+# https://www.deepl.com/
+HOST-SUFFIX,deepl.com
+HOST-SUFFIX,deepl-write.com
+
+# Hugging Face（模型托管 / HuggingChat / 数据集 CDN）
 # https://huggingface.co/chat/
 HOST-SUFFIX,huggingface.co
 HOST-SUFFIX,hf.co
 
-# Mistral Le Chat
-# https://chat.mistral.ai/
-HOST-SUFFIX,mistral.ai
-HOST,chat.mistral.ai
 
-# OfoxAI (多模型聚合)
-# https://ofox.ai/
-HOST-SUFFIX,ofox.ai
+# =============================================================
+# [J] AI 编程工具
+# =============================================================
 
-# OminiGate (多模型聚合)
-# https://ominigate.com/
-HOST-SUFFIX,ominigate.com
+# ── Cursor（AI IDE）
+# https://cursor.com/
+HOST-SUFFIX,cursor.com
+HOST-SUFFIX,cursor.sh
+HOST-SUFFIX,cursor-cdn.com
+HOST-SUFFIX,cursorapi.com
 
-# Requesty (多模型聚合)
+# ── Windsurf / Codeium（已被 Cognition 收购，并入 Devin 体系）
+# https://windsurf.com/
+HOST-SUFFIX,windsurf.com
+HOST-SUFFIX,codeium.com
+
+# ── GitHub Copilot
+# https://github.com/features/copilot
+HOST-SUFFIX,githubcopilot.com
+HOST-SUFFIX,copilot-proxy.githubusercontent.com
+HOST,copilot-workspace.githubnext.com
+HOST,copilotprodattachments.blob.core.windows.net
+
+# ── Replit（在线 IDE + Agent）
+# https://replit.com/
+HOST-SUFFIX,replit.com
+HOST-SUFFIX,repl.co
+HOST-SUFFIX,replit.dev
+
+# ── v0 by Vercel（前端 UI 生成，已迁至 v0.app）
+# https://v0.dev/
+HOST-SUFFIX,v0.dev
+HOST-SUFFIX,v0.app
+
+# ── Bolt.new（StackBlitz WebContainer，浏览器内全栈生成）
+# https://bolt.new/
+HOST-SUFFIX,bolt.new
+HOST-SUFFIX,stackblitz.com
+HOST-SUFFIX,webcontainer.io
+HOST-SUFFIX,webcontainer-api.io
+
+# ── Lovable（Prompt → 全栈应用）
+# https://lovable.dev/
+HOST-SUFFIX,lovable.dev
+HOST-SUFFIX,lovable.app
+
+# ── Base44（Prompt → 全栈应用）
+# https://base44.com/
+HOST-SUFFIX,base44.com
+
+# ── Cognition / Devin（自主编程 Agent）
+# https://cognition.ai/
+HOST-SUFFIX,cognition.ai
+HOST-SUFFIX,devin.ai
+
+# ── Sourcegraph Cody
+# https://sourcegraph.com/cody
+HOST-SUFFIX,sourcegraph.com
+HOST-SUFFIX,sourcegraphstatic.com
+
+# ── Supermaven（超快补全）
+# https://supermaven.com/
+HOST-SUFFIX,supermaven.com
+
+# ── Zed（AI 编辑器）
+# https://zed.dev/
+HOST-SUFFIX,zed.dev
+
+# ── Amazon Kiro（规约驱动 AI IDE）
+# https://kiro.dev/
+HOST-SUFFIX,kiro.dev
+
+# ── Tabnine
+# https://www.tabnine.com/
+HOST-SUFFIX,tabnine.com
+
+
+# =============================================================
+# [K] API 聚合 & 推理平台
+# =============================================================
+
+# OpenRouter（300+ 模型统一入口，海外聚合首选）
+# https://openrouter.ai/
+HOST-SUFFIX,openrouter.ai
+
+# Poe（Quora 出品的多模型聚合）
+# https://poe.com/
+HOST-SUFFIX,poe.com
+HOST-SUFFIX,poeusercontent.com
+
+# Groq（自研 LPU，低延迟推理）
+# https://groq.com/  https://console.groq.com/
+HOST-SUFFIX,groq.com
+
+# Together AI（开源模型推理 + 微调）
+# https://www.together.ai/
+HOST-SUFFIX,together.ai
+HOST-SUFFIX,together.xyz
+
+# Fireworks AI（400+ 模型，多模态）
+# https://fireworks.ai/
+HOST-SUFFIX,fireworks.ai
+
+# Replicate（开源模型托管推理）
+# https://replicate.com/
+HOST-SUFFIX,replicate.com
+HOST-SUFFIX,replicate.delivery
+
+# DeepInfra
+# https://deepinfra.com/
+HOST-SUFFIX,deepinfra.com
+
+# Cerebras（晶圆级芯片，超长上下文）
+# https://cerebras.ai/  https://cloud.cerebras.ai/
+HOST-SUFFIX,cerebras.ai
+
+# NVIDIA NIM / Build（模型体验与推理端点）
+# https://build.nvidia.com/
+HOST-SUFFIX,build.nvidia.com
+
+# Baseten（模型部署推理）
+# https://www.baseten.co/
+HOST-SUFFIX,baseten.co
+
+# Anyscale（Ray / 开源模型端点）
+# https://www.anyscale.com/
+HOST-SUFFIX,anyscale.com
+
+# Lepton AI
+# https://www.lepton.ai/
+HOST-SUFFIX,lepton.ai
+
+# Lambda Labs（GPU 云 + 推理）
+# https://lambdalabs.com/
+HOST-SUFFIX,lambdalabs.com
+
+# RunPod（GPU 云 + Serverless 推理）
+# https://www.runpod.io/
+HOST-SUFFIX,runpod.io
+
+# Modal（Serverless GPU）
+# https://modal.com/
+HOST-SUFFIX,modal.com
+
+# ── 多模型聚合中转（小众，按需保留）
+# Requesty
 # https://requesty.ai/
 HOST-SUFFIX,requesty.ai
-
-# AIHubMix (多模型聚合)
+# NanoGPT
+# https://nano-gpt.com/
+HOST-SUFFIX,nano-gpt.com
+# OfoxAI
+# https://ofox.ai/
+HOST-SUFFIX,ofox.ai
+# OminiGate
+# https://ominigate.com/
+HOST-SUFFIX,ominigate.com
+# AIHubMix
 # https://aihubmix.com/
 HOST-SUFFIX,aihubmix.com
 
-# ========== 国内中转站 (转发海外 LLM API) ==========
-# 注: 服务商在国内，但转发的是 OpenAI/Anthropic/Google 等海外 API，
-#     必须走代理组才能稳定访问（force-policy=大语言模型 已覆盖）
 
-# API2D
-# https://api2d.com/
-HOST-SUFFIX,api2d.com
-HOST,api.api2d.com
+# =============================================================
+# [L] 生成式 AI — 图像 / 音频 / 视频
+# =============================================================
 
-# CloseAI (亚洲最大企业级 AI 中转)
-# https://www.closeai-asia.com/
-HOST-SUFFIX,closeai-asia.com
-HOST-SUFFIX,closeai.com
-HOST,api.closeai-proxy.xyz
+# ── 图像 ──
+# Midjourney
+# https://www.midjourney.com/
+HOST-SUFFIX,midjourney.com
+# Ideogram（文字渲染强）
+# https://ideogram.ai/
+HOST-SUFFIX,ideogram.ai
+# Leonardo.ai
+# https://leonardo.ai/
+HOST-SUFFIX,leonardo.ai
+# Playground
+# https://playground.com/
+HOST-SUFFIX,playground.com
+HOST-SUFFIX,playgroundai.com
+# Krea
+# https://www.krea.ai/
+HOST-SUFFIX,krea.ai
+# Adobe Firefly（商用安全素材生成）
+# https://firefly.adobe.com/
+HOST-SUFFIX,firefly.adobe.com
+# Fal.ai（模型推理 + 图像生成 API）
+# https://fal.ai/
+HOST-SUFFIX,fal.ai
+HOST-SUFFIX,fal.media
+HOST-SUFFIX,fal.run
 
-# OpenAI-SB (老牌中转)
-# https://openai-sb.com/
-HOST-SUFFIX,openai-sb.com
-HOST,api.openai-sb.com
+# ── 音频 / 语音 ──
+# ElevenLabs（语音合成）
+# https://elevenlabs.io/
+HOST-SUFFIX,elevenlabs.io
+HOST-SUFFIX,elevenlabs.com
+# Suno（AI 音乐）
+# https://suno.com/
+HOST-SUFFIX,suno.ai
+HOST-SUFFIX,suno.com
+# Udio（AI 音乐）
+# https://udio.com/
+HOST-SUFFIX,udio.com
+# Murf（商业配音）
+# https://murf.ai/
+HOST-SUFFIX,murf.ai
 
-# OhMyGPT (多模型支持)
-# https://ohmygpt.com/
-HOST-SUFFIX,ohmygpt.com
-HOST,api.ohmygpt.com
+# ── 视频 ──
+# Runway（Gen 系列视频生成/编辑）
+# https://runwayml.com/
+HOST-SUFFIX,runwayml.com
+# Luma Dream Machine
+# https://lumalabs.ai/
+HOST-SUFFIX,lumalabs.ai
+# Pika
+# https://pika.art/
+HOST-SUFFIX,pika.art
+# HeyGen（数字人）
+# https://www.heygen.com/
+HOST-SUFFIX,heygen.com
+# Synthesia（数字人视频）
+# https://www.synthesia.io/
+HOST-SUFFIX,synthesia.io
+
+
+# =============================================================
+# [M] 国内中转站 —— 已移除
+# -------------------------------------------------------------
+# 原收录 api2d.com / closeai.com / openai-sb.com / ohmygpt.com /
+# chatanywhere.tech 等国内中转站。
+#
+# 移除原因：AmosQxRule.conf 的 [filter_local] 中有 `geoip, cn, direct`，
+#   而 filter_local 优先级高于所有 filter_remote 订阅。这些中转站解析到
+#   国内 IP，会被该规则抢先命中 → 无论这里怎么写都恒为直连，属于死代码。
+#
+# 结论：国内中转站直连本就是最优路径，geoip 的行为是正确的。此处不再
+#   保留无效规则，避免误导后续维护。若将来某个中转站国内不可达，
+#   正确做法是在 [filter_local] 里为该域名单独加一条代理规则
+#   （本地规则优先级最高，可覆盖 geoip），而不是加在本文件。
+# =============================================================
