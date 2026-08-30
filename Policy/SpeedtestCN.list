@@ -1,0 +1,14 @@
+# NAME: SpeedtestCN
+# AUTHOR: Amos
+# DESC: 国内测速节点（直连，用于测量本机到国内服务器的裸带宽）
+# NOTE: 与 Policy/Speedtest.list（境外测速，走最佳节点）成对，仿 Steam/SteamCN 惯例。
+#       此处域名在 conf 中 force-policy=direct，且订阅排在境外测速之前，
+#       避免被 Speedtest.list 的 HOST-KEYWORD,speedtest 抢成代理。
+# HOST: 0
+# HOST-KEYWORD: 0
+# HOST-SUFFIX: 3
+# USER-AGENT: 0
+# TOTAL: 3
+HOST-SUFFIX,speedtest.cn,SpeedtestCN
+HOST-SUFFIX,test.ustc.edu.cn,SpeedtestCN
+HOST-SUFFIX,speedtest.189.cn,SpeedtestCN
