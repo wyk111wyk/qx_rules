@@ -1,5 +1,17 @@
+# macOS Finder metadata
 .DS_Store
+._*
+
+# Windows
+Thumbs.db
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.bak
 
 # local workbuddy state (never commit)
 .workbuddy/
-.DS_Store
