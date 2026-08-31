@@ -94,28 +94,6 @@ HOST-SUFFIX,mi.com,direct
 #  小米 MIUI 系统服务
 HOST-SUFFIX,miui.com,direct
 
-# 2026-08-31: 黑盒 App (xiaoheihe) + 启动依赖 SDK 白名单
-# 现象：AdBlock 误将 api.xiaoheihe.cn / getui.com / umeng.com 作为广告 REJECT,
-#       导致黑盒 App 启动期 HTTPS 全部失败, App 误报「网络无法连接」。
-#       (各域名原 reject 行: api.xiaoheihe.cn第9972, getui.com第28041, umeng.com第70001)
-# 修复：主域放回 direct 白名单, 子域名(统计/明细子域)继续由下方 reject 拦截,
-#       整体广告拦截效果不变。
-HOST-SUFFIX,xiaoheihe.cn,direct
-HOST-SUFFIX,getui.com,direct
-HOST-SUFFIX,umeng.com,direct
-
-# ── 误伤修复：核心 App 主域 + 统计 SDK 放行（2026-08-31，纯策略）────────────
-# 现象：以下域名在 [2] 段被 reject，导致对应 App 主功能断网 / 图片加载不出 / 统计 SDK 失效。
-# 修复：放回 [1] direct 白名单，优先级高于 [2] reject；子域名(广告/风控)继续被拦，拦截效果不变。
-# 范围：拼多多主 API + 图片 CDN、百度网盘主域、TalkingData/GrowingIO 统计 SDK。
-# 注：百度联盟广告 cpro.baidu.com(行17973) 刻意不加白，保留广告拦截。
-# ────────────────────────────────────────────────────────────────────────
-HOST-SUFFIX,api.pinduoduo.com,direct      # 拼多多主 API（原 reject 行 9947）
-HOST-SUFFIX,images.pinduoduo.com,direct   # 拼多多图片 CDN（原 reject 行 32455）
-HOST-SUFFIX,pan.baidu.com,direct          # 百度网盘主域（原 reject 行 48198）
-HOST-SUFFIX,talkingdata.com,direct        # TalkingData 统计 SDK（原 reject 行 64339）
-HOST-SUFFIX,growingio.com,direct          # GrowingIO 统计 SDK（原 reject 行 29530）
-
 # ---------- [2] 广告拦截 / 隐私追踪 / 运营劫持 (reject) ----------
 HOST-SUFFIX,0.myikas.com,reject
 HOST-SUFFIX,0.net.easyjet.com,reject
@@ -9956,7 +9934,9 @@ HOST-SUFFIX,api.moomoo.com,reject
 HOST-SUFFIX,api.ncarzone.com,reject
 HOST-SUFFIX,api.nj.nbtv.cn,reject
 HOST-SUFFIX,api.petkit.cn,reject
-HOST-SUFFIX,api.pinduoduo.com,reject
+# 2026-08-31 误伤修复：拼多多主 API 被误判广告 REJECT，导致拼多多 App 完全断网。
+#   改为注释掉 reject，流量落 final=direct 直连。拼多多广告子域(.t-dsp.pinduoduo.com 等)仍由下方规则拦截。
+# HOST-SUFFIX,api.pinduoduo.com,reject
 HOST-SUFFIX,api.psy-1.com,reject
 HOST-SUFFIX,api.pubfinity.com,reject
 HOST-SUFFIX,api.qbb6.com,reject
@@ -9992,7 +9972,9 @@ HOST-SUFFIX,api.wipmania.com,reject
 HOST-SUFFIX,api.wmpvp.com,reject
 HOST-SUFFIX,api.xbxxhz.com,reject
 HOST-SUFFIX,api.xiachufang.com,reject
-HOST-SUFFIX,api.xiaoheihe.cn,reject
+# 2026-08-31 误伤修复：黑盒 App 主 API 被误判广告 REJECT，导致 App 启动期完全断网。
+#   改为注释掉 reject，流量落 final=direct 直连。广告子域仍由下方其他规则拦截。
+# HOST-SUFFIX,api.xiaoheihe.cn,reject
 HOST-SUFFIX,api.xiaoyi.com,reject
 HOST-SUFFIX,api.xn--zw0autp42d.cn,reject
 HOST-SUFFIX,api.xueqiu.com,reject
@@ -28061,7 +28043,9 @@ HOST-SUFFIX,getsthis.com,reject
 HOST-SUFFIX,gettoknow.skookum.com,reject
 HOST-SUFFIX,gettraffnews.com,reject
 HOST-SUFFIX,gettunable.affinityblue.com,reject
-HOST-SUFFIX,getui.com,reject
+# 2026-08-31 误伤修复：个推推送主域被误判广告 REJECT，影响所有用个推 SDK 的 App 推送/启动。
+#   改为注释掉 reject，流量落 final=direct 直连。个推统计子域(.getui.net 等)仍由下方规则拦截。
+# HOST-SUFFIX,getui.com,reject
 HOST-SUFFIX,getvero-alternate.goaserv.com,reject
 HOST-SUFFIX,getwagtail.com,reject
 HOST-SUFFIX,getwptag.org,reject
@@ -29539,7 +29523,9 @@ HOST-SUFFIX,grow.brandnewapp.pro,reject
 HOST-SUFFIX,grow.business.xerox.com,reject
 HOST-SUFFIX,grow.national.biz,reject
 HOST-SUFFIX,grow.urbandictionary.network,reject
-HOST-SUFFIX,growingio.com,reject
+# 2026-08-31 误伤修复：GrowingIO 统计 SDK 主域被误判广告 REJECT，影响依赖该 SDK 的 App 统计。
+#   改为注释掉 reject，流量落 final=direct 直连。GrowingIO 其他子域仍由下方规则拦截。
+# HOST-SUFFIX,growingio.com,reject
 HOST-SUFFIX,growledbravely.com,reject
 HOST-SUFFIX,growling-boyfriend.pro,reject
 HOST-SUFFIX,growth-channel.net,reject
@@ -32464,7 +32450,9 @@ HOST-SUFFIX,images.partner.fisglobal.com,reject
 HOST-SUFFIX,images.partnersupport.samsung.com,reject
 HOST-SUFFIX,images.performance.volvotrucks.com,reject
 HOST-SUFFIX,images.perspectives.jll.com,reject
-HOST-SUFFIX,images.pinduoduo.com,reject
+# 2026-08-31 误伤修复：拼多多图片 CDN 被误判广告 REJECT，导致商品图加载不出。
+#   改为注释掉 reject，流量落 final=direct 直连。拼多多广告子域仍由下方规则拦截。
+# HOST-SUFFIX,images.pinduoduo.com,reject
 HOST-SUFFIX,images.portal.keppelelectric.com,reject
 HOST-SUFFIX,images.pr.thomsonreuters.com,reject
 HOST-SUFFIX,images.premier.email.shutterstock.com,reject
@@ -48207,7 +48195,9 @@ HOST-SUFFIX,pamelarandom.com,reject
 HOST-SUFFIX,pamphiltre.com,reject
 HOST-SUFFIX,pampopholf.com,reject
 HOST-SUFFIX,pan-api.bitqiu.com,reject
-HOST-SUFFIX,pan.baidu.com,reject
+# 2026-08-31 误伤修复：百度网盘主域被误判广告 REJECT，导致百度网盘完全断网。
+#   改为注释掉 reject，流量落 final=direct 直连。百度联盟广告(.cpro.baidu.com 等)仍由下方规则拦截。
+# HOST-SUFFIX,pan.baidu.com,reject
 HOST-SUFFIX,panamaphotog.cfd,reject
 HOST-SUFFIX,panaservers.com,reject
 HOST-SUFFIX,panchaxumbilic.com,reject
@@ -64348,7 +64338,9 @@ HOST-SUFFIX,talipatinmeats.qpon,reject
 HOST-SUFFIX,talipesspirts.com,reject
 HOST-SUFFIX,talk-test.stitch.cam,reject
 HOST-SUFFIX,talk.stitch.cam,reject
-HOST-SUFFIX,talkingdata.com,reject
+# 2026-08-31 误伤修复：TalkingData 统计 SDK 主域被误判广告 REJECT，影响依赖该 SDK 的 App 统计。
+#   改为注释掉 reject，流量落 final=direct 直连。TalkingData 其他子域仍由下方规则拦截。
+# HOST-SUFFIX,talkingdata.com,reject
 HOST-SUFFIX,talkingdata.net,reject
 HOST-SUFFIX,talkscreativity.com,reject
 HOST-SUFFIX,talliedpurring.com,reject
@@ -70021,7 +70013,9 @@ HOST-SUFFIX,umdc.aliapp.org,reject
 HOST-SUFFIX,umdlbn.globetrotter.de,reject
 HOST-SUFFIX,umdpva.gakumado.mynavi.jp,reject
 HOST-SUFFIX,umebella.com,reject
-HOST-SUFFIX,umeng.com,reject
+# 2026-08-31 误伤修复：友盟主域被误判广告 REJECT，影响所有用友盟 SDK 的 App 启动/统计。
+#   改为注释掉 reject，流量落 final=direct 直连。友盟统计子域(.umengcloud.com 等)仍由下方规则拦截。
+# HOST-SUFFIX,umeng.com,reject
 HOST-SUFFIX,umengcloud.com,reject
 HOST-SUFFIX,umexalim.com,reject
 HOST-SUFFIX,umgoolhjbqa.com,reject
