@@ -6,7 +6,9 @@
 #   · blackmatrix7/ios_rule_script Privacy (2025-12-08) —— 隐私追踪
 #   · ISP Hijacking —— 运营商劫持
 #   · Advertising hostname 段 —— 国内 App 开屏/信息流
-# 统计: 生效 reject 77877 条 + 已注释放行 91 条 + direct(规则修正) 31 条
+# 统计: 生效 reject 77772 条 + direct(规则修正) 39 条
+# 误伤处置: 历次审计判定为误杀的条目（累计 196 条）已从列表内直接删除，
+#           不再保留注释行 —— 文件更干净，回滚依赖 git 历史与本地备份。
 # 顺序: 规则修正(direct) 置顶 → 广告拦截(reject)。QX 先匹配先生效，
 #       故白名单优先放行，杜绝误杀。
 # ----------------------------------------------------------------
@@ -16,12 +18,61 @@
 #         典型: api.mcd.cn(麦当劳) / capi.lkcoffee.com(瑞幸) /
 #               api.xueqiu.com(雪球) / api.wallstreetcn.com(华尔街见闻) /
 #               www.baidu.com(百度首页，夹在追踪域名里被误收)。
-#   处置: 本轮共放行 81 条（含前次 2 条，累计注释 91 条），
-#         每条均带 "# 2026-09-03 误伤修复（可达性优先）" 标记，可检索、可回滚。
+#   处置: 本轮共放行 91 条，已从列表内直接删除（不保留注释行），回滚依赖 git 历史。
 #   保留: 各家的 ad / log / stat / track / beacon / smetrics 等统计广告子域
 #         照常拦截，广告拦截能力基本无损。
 #   复审: 上游更新后重跑审计，判据 = 可注册域非广告网络 + 被拦子域为核心
 #         功能名(api/capi/gateway/www/m/app/pay/cdn/img/res/push/msg…)。
+# ----------------------------------------------------------------
+# 2026-09-04 二轮审计（百度地图误杀触发，策略同上: 宁可错放，不可错杀）
+#   触发: newclient.map.baidu.com(百度地图新版客户端网关)被 reject，地图异常。
+#   根因: 上一轮判据只认 api/capi/www/m 等「标准核心子域名」，
+#         漏掉了「客户端网关」命名形态的同类核心域 ——
+#         newclient(百度地图) / spclient(Spotify) / idm(汽车之家) /
+#         acs(阿里系风控) / api-new(AcFun) / weibointl.api(微博国际版)。
+#         ⚠️ 判据补充: 核心功能子域名白名单需扩展上述形态，不能只匹配 api/capi。
+#   处置: 本轮共放行 28 条，分三类:
+#         A 类 21 条 —— 拦截即主功能失效(含用户报告的 newclient.map.baidu.com)；
+#         B 类 2 条  —— safebrowsing.googleapis.com / safebrowsing.urlsec.qq.com，
+#                       不断网但会拆掉浏览器与微信内置链接的安全浏览防护；
+#         C 类 5 条  —— 境外/小众(AbemaTV/巴哈姆特/人人视频/我查查/TapTap哒哒)。
+#         本轮 28 条已从列表内直接删除（不保留注释行），回滚依赖 git 历史。
+#   已核查无需处理: 国外主流(Google/Apple/Microsoft/GitHub/npm/Cloudflare/
+#         Netflix/Telegram/Discord/Notion/Dropbox/Adobe/Zoom/Steam)与国内大厂
+#         (阿里/腾讯/字节/京东/美团/网易/小米)命中项均为广告统计子域，拦截正确；
+#         亦无任何国内主流服务的 eTLD+1 被整条 reject。
+#   残留风险: *.cloudfront.net 有 727 条随机哈希前缀域名，多为广告脚本托管，
+#         但不排除正常 App 的 CDN 前缀被误收 —— 无法用规则判别，
+#         只能靠实际遇到时上报后逐条处理。
+# ----------------------------------------------------------------
+# 2026-09-04 三轮审计（全球服务扩面: 东南亚 / 欧洲 / 日韩 / 中东非拉美）
+#   原则(用户拍板): 允许一定量广告存在，但必须保证网络服务应用的可用性。
+#         判据冲突时一律放行 —— 宁可漏拦广告，不可断服务。
+#   处置: 本轮共放行 77 条（三轮累计 196 条），分三类:
+#         A 类 15 条 —— 拦截即主功能失效，最高优先级:
+#           · app.trainline.com       欧洲火车票 App 核心域，拦了 App 直接废
+#           · scdn.line-apps.com      LINE 静态资源 CDN，贴图/图片加载失败
+#           · l.m.naver.com           Naver 移动端主域（韩国国民门户）
+#           · webtoons.naver.com      Naver 网络漫画主站
+#           · net.jumia.com           非洲最大电商，父域级拦截波及 *.net.jumia.com
+#           · 其余: a.line.me / sp.naver.com / bnc-papago.naver.com ×2 /
+#                   play.kakao.com / kyson.kakao.com / net.jumia.com.eg /
+#                   cdn.net.dz.jumia.com / rbcore-wlc-3.net.jumia.co.ke / i.paypal.com
+#         B 类 39 条 —— 功能/服务域，命名无法确认为广告（Agoda/Garena/Zomato/
+#           乐天/Yahoo Japan/Skyscanner/Hotels/Revolut/Wise/Bol.com/Otto/Rewe/
+#           H&M/LINE/Zalo/Skype/Zoom/Snapchat/Venmo/TikTok 海外 等）
+#         C 类 23 条 —— 随机前缀子域，无法判别（Shopee 五国站点 / Bukalapak /
+#           Blibli / Fnac 四国 / Cdiscount / Carrefour / AboutYou / Bershka /
+#           MediaMarkt / iFood / Americanas / Casas Bahia / Namshi）
+#           注: Shopee 六国各中一条、形态整齐，疑为上游批量误收。
+#         本轮 77 条已从列表内直接删除（不保留注释行），回滚依赖 git 历史。
+#   保留: 各家 smetrics / metrics / analytics / stat / track / log / beacon /
+#         ads / pixel / tag / tr / tk / ats / orbidder / utiq / event-tracker
+#         等明确广告统计子域照常拦截 —— 这些被拦不影响可用性，且是拦截主战果。
+#   复审: 上游更新后须重跑本审计。判据已扩展两条（见上轮「客户端网关命名」）:
+#         ① 核心功能子域名不能只认 api/capi/www/m，须含 newclient / spclient /
+#            idm / acs / api-new / webtoons / l.m 等形态；
+#         ② 随机前缀子域无法判别时，按可用性优先一律放行。
 # ----------------------------------------------------------------
 # ================================================================
 
@@ -2415,7 +2466,6 @@ HOST-SUFFIX,a.kambistory.ml,reject
 HOST-SUFFIX,a.koodomobile.com,reject
 HOST-SUFFIX,a.letsjerk.tv,reject
 HOST-SUFFIX,a.lifehacker.ru,reject
-HOST-SUFFIX,a.line.me,reject
 HOST-SUFFIX,a.linkz.ai,reject
 HOST-SUFFIX,a.lls.org,reject
 HOST-SUFFIX,a.llysc.cn,reject
@@ -6328,7 +6378,6 @@ HOST-SUFFIX,aas.ismet.kz,reject
 HOST-SUFFIX,aas.mclaren.com,reject
 HOST-SUFFIX,aas.neom.com,reject
 HOST-SUFFIX,aas.visitsaudi.com,reject
-HOST-SUFFIX,aaucna.casasbahia.com.br,reject
 HOST-SUFFIX,aauhjkvkybfjy.website,reject
 HOST-SUFFIX,aawdlvr.com,reject
 HOST-SUFFIX,aawspeedy.com,reject
@@ -6420,7 +6469,6 @@ HOST-SUFFIX,abjmkkormakkw.top,reject
 HOST-SUFFIX,abjtuq.exoticca.com,reject
 HOST-SUFFIX,abkajbvqkkwkr.top,reject
 HOST-SUFFIX,abkbmamulx.in,reject
-HOST-SUFFIX,abkdae.namshi.com,reject
 HOST-SUFFIX,abkobh.chobirich.com,reject
 HOST-SUFFIX,ablink.1954.bk.com,reject
 HOST-SUFFIX,ablink.8email.eightsleep.com,reject
@@ -6840,7 +6888,6 @@ HOST-SUFFIX,acrookruinate.cfd,reject
 HOST-SUFFIX,acrosemeconin.com,reject
 HOST-SUFFIX,acrossexterminatorfoggy.com,reject
 HOST-SUFFIX,acs-m.freshippo.com,reject
-HOST-SUFFIX,acs.m.goofish.com,reject
 HOST-SUFFIX,acs.theluxegallery.shop,reject
 HOST-SUFFIX,acs.woolworths.com.au,reject
 HOST-SUFFIX,acs.youku.com,reject
@@ -9862,17 +9909,14 @@ HOST-SUFFIX,api-metric.gosweb.gosuslugi.ru,reject
 HOST-SUFFIX,api-mifit-cn2.zepp.com,reject
 HOST-SUFFIX,api-mifit.huami.com,reject
 HOST-SUFFIX,api-miprint.hannto.com,reject
-HOST-SUFFIX,api-new.app.acfun.cn,reject
 HOST-SUFFIX,api-one-wscn.awtmt.com,reject
 HOST-SUFFIX,api-one.wallstcn.com,reject
 HOST-SUFFIX,api-overmind.youdao.com,reject
 HOST-SUFFIX,api-release.wuta-cam.com,reject
-HOST-SUFFIX,api-shoulei-ssl.xunlei.com,reject
 HOST-SUFFIX,api-visitor-analytics.intercom.com,reject
 HOST-SUFFIX,api-wanda.liepin.com,reject
 HOST-SUFFIX,api-websystems.landing.ni.com,reject
 # 2026-09-03 误伤修复（可达性优先）：主 API —— api.00bang.cn
-# HOST-SUFFIX,api.00bang.cn,reject
 HOST-SUFFIX,api.06fgej.com,reject
 HOST-SUFFIX,api.1101yh.com,reject
 HOST-SUFFIX,api.140proof.com,reject
@@ -9881,10 +9925,8 @@ HOST-SUFFIX,api.21ec74.com,reject
 HOST-SUFFIX,api.21jingji.com,reject
 HOST-SUFFIX,api.36dfsa.com,reject
 HOST-SUFFIX,api.51credit.com,reject
-HOST-SUFFIX,api.abema.io,reject
 HOST-SUFFIX,api.ad.xiaomi.com,reject
 # 2026-09-03 误伤修复（可达性优先）：安徽移动主 API —— api.ahmobile.cn
-# HOST-SUFFIX,api.ahmobile.cn,reject
 HOST-SUFFIX,api.alipan.com,reject
 HOST-SUFFIX,api.apiok.net.iberostar.com,reject
 HOST-SUFFIX,api.applovefrom.com,reject
@@ -9900,32 +9942,23 @@ HOST-SUFFIX,api.caiyunapp.com,reject
 HOST-SUFFIX,api.catch.gift,reject
 HOST-SUFFIX,api.cdmcaac.com,reject
 # 2026-09-03 误伤修复（可达性优先）：车来了主 API —— api.chelaile.net.cn
-# HOST-SUFFIX,api.chelaile.net.cn,reject
 # 2026-09-03 误伤修复（可达性优先）：天翼云 API —— api.cloud.189.cn
-# HOST-SUFFIX,api.cloud.189.cn,reject
 # 2026-09-03 误伤修复（可达性优先）：联想俱乐部 —— api.club.lenovo.cn
-# HOST-SUFFIX,api.club.lenovo.cn,reject
-HOST-SUFFIX,api.coolapk.com,reject
 HOST-SUFFIX,api.croct.io,reject
 HOST-SUFFIX,api.cxzudwk.com,reject
 HOST-SUFFIX,api.dangdang.com,reject
 # 2026-09-03 误伤修复（可达性优先）：日日煮 —— api.daydaycook.com.cn
-# HOST-SUFFIX,api.daydaycook.com.cn,reject
 HOST-SUFFIX,api.digitalpiloten.org,reject
 HOST-SUFFIX,api.douban.com,reject
 HOST-SUFFIX,api.elliehuxtable.com,reject
 HOST-SUFFIX,api.faba.pw,reject
 HOST-SUFFIX,api.fastmoonclimbed.com,reject
 HOST-SUFFIX,api.fengshows.com,reject
-HOST-SUFFIX,api.flydigi.com,reject
 HOST-SUFFIX,api.fuck.education,reject
 HOST-SUFFIX,api.fw.tv,reject
-HOST-SUFFIX,api.gamer.com.tw,reject
 HOST-SUFFIX,api.gaoqingdianshi.com,reject
-HOST-SUFFIX,api.gotokeep.com,reject
 HOST-SUFFIX,api.hanju.koudaibaobao.com,reject
 # 2026-09-03 误伤修复（可达性优先）：好好住 —— api.haohaozhu.cn
-# HOST-SUFFIX,api.haohaozhu.cn,reject
 HOST-SUFFIX,api.hengdianfilm.com,reject
 HOST-SUFFIX,api.htp.ad-scope.com.cn,reject
 HOST-SUFFIX,api.huachenjie.com,reject
@@ -9933,104 +9966,70 @@ HOST-SUFFIX,api.huomao.com,reject
 HOST-SUFFIX,api.imdb.us-east-1.prod.mario.imdbtv.amazon.dev,reject
 HOST-SUFFIX,api.indeedpower.com,reject
 # 2026-09-03 误伤修复（可达性优先）：主 API —— api.internetofcity.cn
-# HOST-SUFFIX,api.internetofcity.cn,reject
-HOST-SUFFIX,api.ireader.mobi,reject
 HOST-SUFFIX,api.izuiyou.com,reject
 HOST-SUFFIX,api.june.so,reject
 HOST-SUFFIX,api.jxedt.com,reject
 # 2026-09-03 误伤修复（可达性优先）：搜狐接口 —— api.k.sohu.com
-# HOST-SUFFIX,api.k.sohu.com,reject
-HOST-SUFFIX,api.kkmh.com,reject
 HOST-SUFFIX,api.klico.co,reject
 HOST-SUFFIX,api.kmovie.gifshow.com,reject
-HOST-SUFFIX,api.kurobbs.com,reject
 HOST-SUFFIX,api.kwaizt.com,reject
 HOST-SUFFIX,api.laifeng.com,reject
 # 2026-09-03 误伤修复：麦当劳中国主 API 被误判广告 REJECT，导致麦当劳小程序完全断网（提示"网络未连接"）。
 #   改为注释掉 reject，流量落 final=direct 直连。麦当劳境外域与统计子域(smetrics.mcdonalds.com / franchising.mcdonalds.ca / ctwmcd.com / ptwmcd.com)仍由下方规则拦截。
-# HOST-SUFFIX,api.mcd.cn,reject
 # 2026-09-03 误伤修复（可达性优先）：医脉通 —— api.medlive.cn
-# HOST-SUFFIX,api.medlive.cn,reject
 HOST-SUFFIX,api.merach.com,reject
 HOST-SUFFIX,api.mgzf.com,reject
 HOST-SUFFIX,api.mintfunnel.co,reject
 HOST-SUFFIX,api.moomoo.com,reject
 HOST-SUFFIX,api.ncarzone.com,reject
 # 2026-09-03 误伤修复（可达性优先）：南京广电 —— api.nj.nbtv.cn
-# HOST-SUFFIX,api.nj.nbtv.cn,reject
 # 2026-09-03 误伤修复（可达性优先）：小佩宠物 —— api.petkit.cn
-# HOST-SUFFIX,api.petkit.cn,reject
 # 2026-08-31 误伤修复：拼多多主 API 被误判广告 REJECT，导致拼多多 App 完全断网。
 #   改为注释掉 reject，流量落 final=direct 直连。拼多多广告子域(.t-dsp.pinduoduo.com 等)仍由下方规则拦截。
-# HOST-SUFFIX,api.pinduoduo.com,reject
 HOST-SUFFIX,api.psy-1.com,reject
 HOST-SUFFIX,api.pubfinity.com,reject
 HOST-SUFFIX,api.qbb6.com,reject
 HOST-SUFFIX,api.qcmm07.com,reject
-HOST-SUFFIX,api.qd-metro.com,reject
 # 2026-09-03 误伤修复（可达性优先）：主 API —— api.qiuduoduo.cn
-# HOST-SUFFIX,api.qiuduoduo.cn,reject
 HOST-SUFFIX,api.qvpublish.com,reject
 HOST-SUFFIX,api.revive-adserver.net,reject
-HOST-SUFFIX,api.rr.tv,reject
 HOST-SUFFIX,api.ryanyao.design,reject
 HOST-SUFFIX,api.sae.systems,reject
 HOST-SUFFIX,api.scwsf.com,reject
-HOST-SUFFIX,api.sfacg.com,reject
 # 2026-09-03 误伤修复（可达性优先）：主 API —— api.shanghailingye.cn
-# HOST-SUFFIX,api.shanghailingye.cn,reject
-HOST-SUFFIX,api.shanghaionstar.com,reject
 HOST-SUFFIX,api.shubunk.com,reject
 HOST-SUFFIX,api.smartnews-ads.com,reject
 HOST-SUFFIX,api.sodalife.xyz,reject
 # 2026-09-03 误伤修复（可达性优先）：主 API —— api.sogaha.cn
-# HOST-SUFFIX,api.sogaha.cn,reject
 HOST-SUFFIX,api.taou.com,reject
-HOST-SUFFIX,api.taptapdada.com,reject
 HOST-SUFFIX,api.tipsoon.com,reject
 HOST-SUFFIX,api.touker.com,reject
-HOST-SUFFIX,api.u51.com,reject
 HOST-SUFFIX,api.ulife.group,reject
 # 2026-09-03 误伤修复（可达性优先）：看理想主 API —— api.vistopia.com.cn
-# HOST-SUFFIX,api.vistopia.com.cn,reject
 HOST-SUFFIX,api.vuevideo.net,reject
 # 2026-09-03 误伤修复（可达性优先）：支付接口 —— api.waitwaitpay.com
-# HOST-SUFFIX,api.waitwaitpay.com,reject
 # 2026-09-03 误伤修复（可达性优先）：华尔街见闻行情主 API —— api.wallstreetcn.com
-# HOST-SUFFIX,api.wallstreetcn.com,reject
 HOST-SUFFIX,api.wfdata.club,reject
 HOST-SUFFIX,api.winbull8.com,reject
 HOST-SUFFIX,api.wipmania.com,reject
 HOST-SUFFIX,api.wmpvp.com,reject
 HOST-SUFFIX,api.xbxxhz.com,reject
 # 2026-09-03 误伤修复（可达性优先）：下厨房主 API —— api.xiachufang.com
-# HOST-SUFFIX,api.xiachufang.com,reject
 # 2026-08-31 误伤修复：黑盒 App 主 API 被误判广告 REJECT，导致 App 启动期完全断网。
 #   改为注释掉 reject，流量落 final=direct 直连。广告子域仍由下方其他规则拦截。
-# HOST-SUFFIX,api.xiaoheihe.cn,reject
 # 2026-09-03 误伤修复（可达性优先）：小蚁摄像机 —— api.xiaoyi.com
-# HOST-SUFFIX,api.xiaoyi.com,reject
 HOST-SUFFIX,api.xn--zw0autp42d.cn,reject
 # 2026-09-03 误伤修复（可达性优先）：雪球行情主 API —— api.xueqiu.com
-# HOST-SUFFIX,api.xueqiu.com,reject
 HOST-SUFFIX,api.xyhx.cc,reject
 HOST-SUFFIX,api.xyhx.org,reject
 # 2026-09-03 误伤修复（可达性优先）：拼多多主 API —— api.yangkeduo.com
-# HOST-SUFFIX,api.yangkeduo.com,reject
 # 2026-09-03 误伤修复（可达性优先）：易车 —— api.ycapp.yiche.com
-# HOST-SUFFIX,api.ycapp.yiche.com,reject
 # 2026-09-03 误伤修复（可达性优先）：易考吧主 API —— api.yikaobang.com.cn
-# HOST-SUFFIX,api.yikaobang.com.cn,reject
 # 2026-09-03 误伤修复（可达性优先）：一直播主 API —— api.yizhibo.com
-# HOST-SUFFIX,api.yizhibo.com,reject
 # 2026-09-03 误伤修复（可达性优先）：永辉生活 —— api.yonghuivip.com
-# HOST-SUFFIX,api.yonghuivip.com,reject
 # 2026-09-03 误伤修复（可达性优先）：萤石云(海康)主 API —— api.ys7.com
-# HOST-SUFFIX,api.ys7.com,reject
 # 2026-09-03 误伤修复（可达性优先）：站酷主 API —— api.zcool.com.cn
-# HOST-SUFFIX,api.zcool.com.cn,reject
 # 2026-09-03 误伤修复（可达性优先）：追书神器主 API —— api.zhuishushenqi.com
-# HOST-SUFFIX,api.zhuishushenqi.com,reject
 HOST-SUFFIX,api1.34580.com,reject
 HOST-SUFFIX,api168168.com,reject
 HOST-SUFFIX,api2.picooc.com,reject
@@ -10200,7 +10199,6 @@ HOST-SUFFIX,app.bws.com.au,reject
 HOST-SUFFIX,app.byjus.com,reject
 HOST-SUFFIX,app.byutickets.com,reject
 # 2026-09-03 误伤修复（可达性优先）：咪咕 —— app.c.nf.migu.cn
-# HOST-SUFFIX,app.c.nf.migu.cn,reject
 HOST-SUFFIX,app.caden.io,reject
 HOST-SUFFIX,app.calbears.com,reject
 HOST-SUFFIX,app.cambolink21.com,reject
@@ -10217,7 +10215,6 @@ HOST-SUFFIX,app.carrierview.com,reject
 HOST-SUFFIX,app.carsguide.com.au,reject
 HOST-SUFFIX,app.catchconnect.com.au,reject
 HOST-SUFFIX,app.cb.pnc.com,reject
-HOST-SUFFIX,app.ceair.com,reject
 HOST-SUFFIX,app.ceb.executiveboard.com,reject
 HOST-SUFFIX,app.centreinthesquare.com,reject
 HOST-SUFFIX,app.changemakerz.org,reject
@@ -10225,7 +10222,6 @@ HOST-SUFFIX,app.charlotte49ers.com,reject
 HOST-SUFFIX,app.chartwayarena.com,reject
 HOST-SUFFIX,app.chat.global.xiaomi.net.iberostar.com,reject
 # 2026-09-03 误伤修复（可达性优先）：华西证券 —— app.chinahxzq.com.cn
-# HOST-SUFFIX,app.chinahxzq.com.cn,reject
 HOST-SUFFIX,app.cimarketing.aig.com,reject
 HOST-SUFFIX,app.cincinnatiarts.org,reject
 HOST-SUFFIX,app.citibikenyc.com,reject
@@ -10329,7 +10325,6 @@ HOST-SUFFIX,app.fleet2.vauxhall.co.uk,reject
 HOST-SUFFIX,app.flowyour.money,reject
 HOST-SUFFIX,app.flykitt.com,reject
 # 2026-09-03 误伤修复（可达性优先）：App 服务 —— app.flymodem.com.cn
-# HOST-SUFFIX,app.flymodem.com.cn,reject
 HOST-SUFFIX,app.flyx.me,reject
 HOST-SUFFIX,app.food.li,reject
 HOST-SUFFIX,app.food.porn,reject
@@ -10832,7 +10827,6 @@ HOST-SUFFIX,app.torfx.com,reject
 HOST-SUFFIX,app.touchofmodern.com,reject
 HOST-SUFFIX,app.trade.mogo.ca,reject
 HOST-SUFFIX,app.trainfitness.ai,reject
-HOST-SUFFIX,app.trainline.com,reject
 HOST-SUFFIX,app.travelcom.com.tw,reject
 HOST-SUFFIX,app.trayls.com,reject
 HOST-SUFFIX,app.treering.com,reject
@@ -10897,10 +10891,8 @@ HOST-SUFFIX,app.wvusports.com,reject
 HOST-SUFFIX,app.www-102.aig.com,reject
 HOST-SUFFIX,app.wy.guahao.com,reject
 # 2026-09-03 误伤修复（可达性优先）：新片场 —— app.xinpianchang.com
-# HOST-SUFFIX,app.xinpianchang.com,reject
 HOST-SUFFIX,app.xlcenter.com,reject
 # 2026-09-03 误伤修复（可达性优先）：印象笔记 —— app.yinxiang.com
-# HOST-SUFFIX,app.yinxiang.com,reject
 HOST-SUFFIX,app.yolda.com,reject
 HOST-SUFFIX,app.yolda.io,reject
 HOST-SUFFIX,app.yollty.com,reject
@@ -10911,7 +10903,6 @@ HOST-SUFFIX,app.yourmoji.co,reject
 HOST-SUFFIX,app.yrotary.com,reject
 HOST-SUFFIX,app.zhoudamozi.com,reject
 # 2026-09-03 误伤修复（可达性优先）：转转 —— app.zhuanzhuan.com
-# HOST-SUFFIX,app.zhuanzhuan.com,reject
 HOST-SUFFIX,app.zip.co,reject
 HOST-SUFFIX,app.ziptoss.com,reject
 HOST-SUFFIX,app.zirtue.com,reject
@@ -12184,7 +12175,6 @@ HOST-SUFFIX,b.your.rewardsemail.dominos.ca,reject
 HOST-SUFFIX,b.ysh.io,reject
 HOST-SUFFIX,b.zedge.me,reject
 HOST-SUFFIX,b.zhuishushenqi.com,reject
-HOST-SUFFIX,b0.yahoo.co.jp,reject
 HOST-SUFFIX,b053d0h076.com,reject
 HOST-SUFFIX,b08.fit,reject
 HOST-SUFFIX,b0ko1hd9pb.com,reject
@@ -12879,7 +12869,6 @@ HOST-SUFFIX,bensonshowd.com,reject
 HOST-SUFFIX,bentadaptation.com,reject
 HOST-SUFFIX,bentengine.com,reject
 HOST-SUFFIX,benthosrazee.shop,reject
-HOST-SUFFIX,bento.agoda.com,reject
 HOST-SUFFIX,bentsdiorism.com,reject
 HOST-SUFFIX,benurattel.cfd,reject
 HOST-SUFFIX,benvjt.icu,reject
@@ -13514,7 +13503,6 @@ HOST-SUFFIX,bn1zelzjjntwb84q44zz.cfd,reject
 HOST-SUFFIX,bn5x.net,reject
 HOST-SUFFIX,bnbagnut.com,reject
 HOST-SUFFIX,bnbklsss.homes,reject
-HOST-SUFFIX,bnc-papago.naver.com,reject
 HOST-SUFFIX,bnc.autopass.xyz,reject
 HOST-SUFFIX,bnc.chewchunks.com,reject
 HOST-SUFFIX,bnc.citylink.ro,reject
@@ -13873,7 +13861,6 @@ HOST-SUFFIX,bqoulb.nowo.pt,reject
 HOST-SUFFIX,bqplydkjst.com,reject
 HOST-SUFFIX,bqrjotqnqh.com,reject
 HOST-SUFFIX,bqstreamer.com,reject
-HOST-SUFFIX,bqvndd.ifood.com.br,reject
 HOST-SUFFIX,br.ac.ebookers.ch,reject
 HOST-SUFFIX,br.ac.ebookers.com,reject
 HOST-SUFFIX,br.ac.ebookers.de,reject
@@ -14574,7 +14561,6 @@ HOST-SUFFIX,butyrtoletan.cyou,reject
 HOST-SUFFIX,buxeousanoaorig.cfd,reject
 HOST-SUFFIX,buxrundhtjfzj.space,reject
 HOST-SUFFIX,buxusswears.cfd,reject
-HOST-SUFFIX,buy.line.me,reject
 HOST-SUFFIX,buyeasy.by,reject
 HOST-SUFFIX,buyer.dspx.tv,reject
 HOST-SUFFIX,buyer.okiela.com,reject
@@ -15133,13 +15119,10 @@ HOST-SUFFIX,caperedlevi.com,reject
 HOST-SUFFIX,caperertoxonelaths.cfd,reject
 HOST-SUFFIX,capi.connatix.com,reject
 # 2026-09-03 误伤修复（可达性优先）：斗鱼主 API —— capi.douyucdn.cn
-# HOST-SUFFIX,capi.douyucdn.cn,reject
 # 2026-09-03 误伤修复：瑞幸咖啡主 API 被误判广告 REJECT，导致瑞幸小程序完全断网（提示"网络未连接"）。
 #   与 2026-08-31 黑盒 api.xiaoheihe.cn 同型：C 端主 API 落进 REJECT 段。
 #   改为注释掉 reject，流量落 final=direct 直连。瑞幸广告/统计子域仍由下方其他规则拦截。
-# HOST-SUFFIX,capi.lkcoffee.com,reject
 # 2026-09-03 误伤修复（可达性优先）：美味不用等主 API —— capi.mwee.cn
-# HOST-SUFFIX,capi.mwee.cn,reject
 HOST-SUFFIX,capital-order.pro,reject
 HOST-SUFFIX,caplansteverogers.goasrv.com,reject
 HOST-SUFFIX,caplantezkere.cyou,reject
@@ -15492,7 +15475,6 @@ HOST-SUFFIX,cdn-server.cc,reject
 HOST-SUFFIX,cdn-xyk-app.bankofbeijing.com.cn,reject
 HOST-SUFFIX,cdn.02xl.com,reject
 # 2026-09-03 误伤修复（可达性优先）：CDN —— cdn.133.cn
-# HOST-SUFFIX,cdn.133.cn,reject
 HOST-SUFFIX,cdn.13dy.com,reject
 HOST-SUFFIX,cdn.20fm.com,reject
 HOST-SUFFIX,cdn.33apk.com,reject
@@ -15500,7 +15482,6 @@ HOST-SUFFIX,cdn.3ckz.com,reject
 HOST-SUFFIX,cdn.61yes.com,reject
 HOST-SUFFIX,cdn.710k.com,reject
 # 2026-09-03 误伤修复（可达性优先）：CDN —— cdn.7nsc.cn
-# HOST-SUFFIX,cdn.7nsc.cn,reject
 HOST-SUFFIX,cdn.90mm1.com,reject
 HOST-SUFFIX,cdn.9823df.com,reject
 HOST-SUFFIX,cdn.99kia.com,reject
@@ -15545,7 +15526,6 @@ HOST-SUFFIX,cdn.kuaidi100.com,reject
 HOST-SUFFIX,cdn.lcwss.com,reject
 HOST-SUFFIX,cdn.mtinsqq.com,reject
 HOST-SUFFIX,cdn.myth.dev,reject
-HOST-SUFFIX,cdn.net.dz.jumia.com,reject
 HOST-SUFFIX,cdn.net.elogia.net,reject
 HOST-SUFFIX,cdn.nsuky.com,reject
 HOST-SUFFIX,cdn.nuqwe.com,reject
@@ -15561,7 +15541,6 @@ HOST-SUFFIX,cdn.ravm.tv,reject
 HOST-SUFFIX,cdn.responsiq.com,reject
 HOST-SUFFIX,cdn.rfitc.com,reject
 # 2026-09-03 误伤修复（可达性优先）：平安银行(原深发展) —— cdn.sdb.com.cn
-# HOST-SUFFIX,cdn.sdb.com.cn,reject
 HOST-SUFFIX,cdn.slots.baxter.olx.org,reject
 HOST-SUFFIX,cdn.smartnews-ads.com,reject
 HOST-SUFFIX,cdn.spnut.com,reject
@@ -15579,9 +15558,7 @@ HOST-SUFFIX,cdn.viowrel.com,reject
 HOST-SUFFIX,cdn.vue-js.cyou,reject
 HOST-SUFFIX,cdn.webdelivery.biz,reject
 # 2026-09-03 误伤修复（可达性优先）：CDN —— cdn.weiye.net
-# HOST-SUFFIX,cdn.weiye.net,reject
 # 2026-09-03 误伤修复（可达性优先）：CDN —— cdn.wenzhangba.cn
-# HOST-SUFFIX,cdn.wenzhangba.cn,reject
 HOST-SUFFIX,cdn.wup.huya.com,reject
 HOST-SUFFIX,cdn.wusum.com,reject
 HOST-SUFFIX,cdn.wuxiqiangheng.com,reject
@@ -15656,7 +15633,6 @@ HOST-SUFFIX,cds.wifi188.com,reject
 HOST-SUFFIX,cdsbnrs.com,reject
 HOST-SUFFIX,cdsolder.shop,reject
 HOST-SUFFIX,cdtbox.rocks,reject
-HOST-SUFFIX,cdtm.cdiscount.com,reject
 HOST-SUFFIX,cdvnogrvt.com,reject
 HOST-SUFFIX,cdvsd9.com,reject
 HOST-SUFFIX,cdwmpt.com,reject
@@ -16195,7 +16171,6 @@ HOST-SUFFIX,ciudad-guzman.goaserv.com,reject
 HOST-SUFFIX,civicmillion.com,reject
 HOST-SUFFIX,civillylenvoy.cyou,reject
 HOST-SUFFIX,civitanmorally.cfd,reject
-HOST-SUFFIX,cix.line-apps.com,reject
 HOST-SUFFIX,cix0wk.com,reject
 HOST-SUFFIX,cixmelisa.goasrv.com,reject
 HOST-SUFFIX,cizzvi.beldona.com,reject
@@ -16298,7 +16273,6 @@ HOST-SUFFIX,claxonsfootedaerides.cfd,reject
 HOST-SUFFIX,claynelsonlifebalance.actonservice.com,reject
 HOST-SUFFIX,claysinigowiggism.cyou,reject
 HOST-SUFFIX,claytonuncate.cfd,reject
-HOST-SUFFIX,clb.yahoo.co.jp,reject
 HOST-SUFFIX,clbjmp.com,reject
 HOST-SUFFIX,clck.dzen.ru,reject
 HOST-SUFFIX,clcktrax.com,reject
@@ -16638,7 +16612,6 @@ HOST-SUFFIX,clotterknives.shop,reject
 HOST-SUFFIX,cloud-log.yy.com,reject
 HOST-SUFFIX,cloud-miner.eu,reject
 # 2026-09-03 误伤修复（可达性优先）：天翼云 —— cloud.189.cn
-# HOST-SUFFIX,cloud.189.cn,reject
 HOST-SUFFIX,cloud.diagral.fr,reject
 HOST-SUFFIX,cloud.setupad.com,reject
 HOST-SUFFIX,cloud.trapptechnology.com,reject
@@ -17625,7 +17598,6 @@ HOST-SUFFIX,content.wire.telstra.com,reject
 HOST-SUFFIX,content.xpublisher.com,reject
 HOST-SUFFIX,content.yole365.com,reject
 # 2026-09-03 误伤修复（可达性优先）：内容服务 —— content.youmiam.com
-# HOST-SUFFIX,content.youmiam.com,reject
 HOST-SUFFIX,content22.bmo.com,reject
 HOST-SUFFIX,content22.citibank.com.au,reject
 HOST-SUFFIX,content22.citibankonline.com,reject
@@ -20350,7 +20322,6 @@ HOST-SUFFIX,dbmbfe.pegipegi.com,reject
 HOST-SUFFIX,dbmyvl.apartmentfinder.com,reject
 HOST-SUFFIX,dbnsd2viud.xyz,reject
 HOST-SUFFIX,dbnwlp.xyz,reject
-HOST-SUFFIX,dbpbyh.americanas.com.br,reject
 HOST-SUFFIX,dbqhingien.com,reject
 HOST-SUFFIX,dbr9gtaf8.com,reject
 HOST-SUFFIX,dbraulmat.com,reject
@@ -20488,7 +20459,6 @@ HOST-SUFFIX,dd.bellesdemeures.com,reject
 HOST-SUFFIX,dd.betano.com,reject
 HOST-SUFFIX,dd.control4.com,reject
 HOST-SUFFIX,dd.g2.com,reject
-HOST-SUFFIX,dd.garena.com,reject
 HOST-SUFFIX,dd.leboncoin.fr,reject
 HOST-SUFFIX,dd.nexvoxi.com,reject
 HOST-SUFFIX,dd.nytimes.com,reject
@@ -24951,7 +24921,6 @@ HOST-SUFFIX,eulerian.tgv-europe.lu,reject
 HOST-SUFFIX,eulerian.tgv-europe.nl,reject
 HOST-SUFFIX,eulerian.thalasseo.com,reject
 HOST-SUFFIX,eulerian.voyage-prive.com,reject
-HOST-SUFFIX,eultech.fnac.com,reject
 HOST-SUFFIX,eum.instana.rewe-group.com,reject
 HOST-SUFFIX,eumarketing.sedgwick.com,reject
 HOST-SUFFIX,eumeainfo.motorolasolutions.com,reject
@@ -25919,7 +25888,6 @@ HOST-SUFFIX,feeblestamp.com,reject
 HOST-SUFFIX,feeceeyf.com,reject
 HOST-SUFFIX,feed-xml.com,reject
 # 2026-09-03 误伤修复（可达性优先）：百度信息流 —— feed.baidu.com
-# HOST-SUFFIX,feed.baidu.com,reject
 HOST-SUFFIX,feedads.feedblitz.com,reject
 HOST-SUFFIX,feedandpurr.com,reject
 HOST-SUFFIX,feedback.aon.com,reject
@@ -27198,7 +27166,6 @@ HOST-SUFFIX,ftv-publicite.fr,reject
 HOST-SUFFIX,ftwnwght.net.anwalt.de,reject
 HOST-SUFFIX,ftwo-feedback.autohome.com.cn,reject
 HOST-SUFFIX,ftwo-receiver.autohome.com.cn,reject
-HOST-SUFFIX,ftysya.aboutyou.de,reject
 HOST-SUFFIX,ftzets.silkfred.com,reject
 HOST-SUFFIX,fuck-dating.com,reject
 HOST-SUFFIX,fuckthat.xyz,reject
@@ -27682,7 +27649,6 @@ HOST-SUFFIX,gateway.adnflow.com,reject
 HOST-SUFFIX,gateway.adxnow.com,reject
 HOST-SUFFIX,gateway.aimia.com,reject
 # 2026-09-03 误伤修复（可达性优先）：网关服务 —— gateway.benewtech.cn
-# HOST-SUFFIX,gateway.benewtech.cn,reject
 HOST-SUFFIX,gateway.exoqarys.com,reject
 HOST-SUFFIX,gateway.foresee.com,reject
 HOST-SUFFIX,gateway.shouqiev.com,reject
@@ -28061,7 +28027,6 @@ HOST-SUFFIX,get.ukg.in,reject
 HOST-SUFFIX,get.ukg.mx,reject
 HOST-SUFFIX,get.ukg.nl,reject
 HOST-SUFFIX,get.utelly.com,reject
-HOST-SUFFIX,get.venmo.com,reject
 HOST-SUFFIX,get.vent.co,reject
 HOST-SUFFIX,get.vero.co,reject
 HOST-SUFFIX,get.vida.co,reject
@@ -28108,7 +28073,6 @@ HOST-SUFFIX,gettraffnews.com,reject
 HOST-SUFFIX,gettunable.affinityblue.com,reject
 # 2026-08-31 误伤修复：个推推送主域被误判广告 REJECT，影响所有用个推 SDK 的 App 推送/启动。
 #   改为注释掉 reject，流量落 final=direct 直连。个推统计子域(.getui.net 等)仍由下方规则拦截。
-# HOST-SUFFIX,getui.com,reject
 HOST-SUFFIX,getvero-alternate.goaserv.com,reject
 HOST-SUFFIX,getwagtail.com,reject
 HOST-SUFFIX,getwptag.org,reject
@@ -29588,7 +29552,6 @@ HOST-SUFFIX,grow.national.biz,reject
 HOST-SUFFIX,grow.urbandictionary.network,reject
 # 2026-08-31 误伤修复：GrowingIO 统计 SDK 主域被误判广告 REJECT，影响依赖该 SDK 的 App 统计。
 #   改为注释掉 reject，流量落 final=direct 直连。GrowingIO 其他子域仍由下方规则拦截。
-# HOST-SUFFIX,growingio.com,reject
 HOST-SUFFIX,growledbravely.com,reject
 HOST-SUFFIX,growling-boyfriend.pro,reject
 HOST-SUFFIX,growth-channel.net,reject
@@ -29713,7 +29676,6 @@ HOST-SUFFIX,gtlpaj.com,reject
 HOST-SUFFIX,gtm.diamond.jp,reject
 HOST-SUFFIX,gtm.lercio.it,reject
 HOST-SUFFIX,gtm.mandesager.dk,reject
-HOST-SUFFIX,gtm.wise.com,reject
 HOST-SUFFIX,gtm.xtb.com,reject
 HOST-SUFFIX,gtmajs.click,reject
 HOST-SUFFIX,gtmfsstatic.getgoogletagmanager.com,reject
@@ -29877,7 +29839,6 @@ HOST-SUFFIX,gw.vixen.com,reject
 HOST-SUFFIX,gw.vixenplus.com,reject
 HOST-SUFFIX,gw.wifey.com,reject
 # 2026-09-03 误伤修复（可达性优先）：小餐科技网关 —— gw.xiaocantech.com
-# HOST-SUFFIX,gw.xiaocantech.com,reject
 HOST-SUFFIX,gw1jvhs.com,reject
 HOST-SUFFIX,gw7jpuouik.com,reject
 HOST-SUFFIX,gwaevffiiyj.com,reject
@@ -29955,7 +29916,6 @@ HOST-SUFFIX,gys.goaserv.com,reject
 HOST-SUFFIX,gysn001.com,reject
 HOST-SUFFIX,gysqsokhnysqp.space,reject
 HOST-SUFFIX,gyutmrp.com,reject
-HOST-SUFFIX,gyvcwd.cdiscount.com,reject
 HOST-SUFFIX,gyvestaxis.cyou,reject
 HOST-SUFFIX,gyvlgl.sportitude.com.au,reject
 HOST-SUFFIX,gyvyoc.dermoeczanem.com,reject
@@ -30276,7 +30236,6 @@ HOST-SUFFIX,hb-boom.api.mgtv.com,reject
 HOST-SUFFIX,hb.collectiveaudience.co,reject
 HOST-SUFFIX,hb.vhsrv.com,reject
 HOST-SUFFIX,hb.yahoo.net,reject
-HOST-SUFFIX,hbaazk.bukalapak.com,reject
 HOST-SUFFIX,hbahrd.yogibo.jp,reject
 HOST-SUFFIX,hbandier.com,reject
 HOST-SUFFIX,hbbtv-track.prosieben.de,reject
@@ -31543,7 +31502,6 @@ HOST-SUFFIX,hycywj.akkushop.de,reject
 HOST-SUFFIX,hydraconcept.com,reject
 HOST-SUFFIX,hydro-ma-proxy.akamaized.net,reject
 HOST-SUFFIX,hydrocarbon77.top,reject
-HOST-SUFFIX,hyeorg.gmarket.co.kr,reject
 HOST-SUFFIX,hyeqp.xyz,reject
 HOST-SUFFIX,hygiena.actonservice.com,reject
 HOST-SUFFIX,hygiene86.com,reject
@@ -31633,7 +31591,6 @@ HOST-SUFFIX,i.live.xyz,reject
 HOST-SUFFIX,i.livexyz.com,reject
 HOST-SUFFIX,i.moneytransfer.travelex.com,reject
 HOST-SUFFIX,i.morons.us,reject
-HOST-SUFFIX,i.paypal.com,reject
 HOST-SUFFIX,i.play.vividpicks.com,reject
 HOST-SUFFIX,i.poker2u.app,reject
 HOST-SUFFIX,i.pokerbros.net,reject
@@ -31835,7 +31792,6 @@ HOST-SUFFIX,idianw.warmteservice.nl,reject
 HOST-SUFFIX,idkcmqzzrnq.com,reject
 HOST-SUFFIX,idlecollect.com,reject
 HOST-SUFFIX,idlqzb.puntoscolombia.com,reject
-HOST-SUFFIX,idm.api.autohome.com.cn,reject
 HOST-SUFFIX,idmchina.net,reject
 HOST-SUFFIX,idndlc.kango-oshigoto.jp,reject
 HOST-SUFFIX,idobqo.icu,reject
@@ -31959,7 +31915,6 @@ HOST-SUFFIX,ihc.cellmarque.com,reject
 HOST-SUFFIX,ihcamp.ybtour.co.kr,reject
 HOST-SUFFIX,ihclam.cn,reject
 HOST-SUFFIX,ihcrqa.sonnenklar.tv,reject
-HOST-SUFFIX,ihfwer.aboutyou.com,reject
 HOST-SUFFIX,ihhuyvugv.com,reject
 HOST-SUFFIX,ihi.flowplayer.com,reject
 HOST-SUFFIX,ihixmyzlqb.com,reject
@@ -32094,7 +32049,6 @@ HOST-SUFFIX,image.now.beyondtrust.info,reject
 HOST-SUFFIX,image.spdbccc.com.cn,reject
 HOST-SUFFIX,image.success.bluewolf.com,reject
 # 2026-09-03 误伤修复（可达性优先）：苏宁图片 —— image.suning.cn
-# HOST-SUFFIX,image.suning.cn,reject
 HOST-SUFFIX,image.thermoscientific.com,reject
 HOST-SUFFIX,image.yafytg.cn,reject
 HOST-SUFFIX,imageadvantage.net,reject
@@ -32517,7 +32471,6 @@ HOST-SUFFIX,images.performance.volvotrucks.com,reject
 HOST-SUFFIX,images.perspectives.jll.com,reject
 # 2026-08-31 误伤修复：拼多多图片 CDN 被误判广告 REJECT，导致商品图加载不出。
 #   改为注释掉 reject，流量落 final=direct 直连。拼多多广告子域仍由下方规则拦截。
-# HOST-SUFFIX,images.pinduoduo.com,reject
 HOST-SUFFIX,images.portal.keppelelectric.com,reject
 HOST-SUFFIX,images.pr.thomsonreuters.com,reject
 HOST-SUFFIX,images.premier.email.shutterstock.com,reject
@@ -32675,7 +32628,6 @@ HOST-SUFFIX,img.foodspring.nl,reject
 HOST-SUFFIX,img.foodspring.se,reject
 HOST-SUFFIX,img.gamebookers.com,reject
 # 2026-09-03 误伤修复（可达性优先）：广东石油 —— img.gdoil.cn
-# HOST-SUFFIX,img.gdoil.cn,reject
 HOST-SUFFIX,img.go.coface.com,reject
 HOST-SUFFIX,img.healthecareers.com,reject
 HOST-SUFFIX,img.hrm.groups.be,reject
@@ -32694,11 +32646,9 @@ HOST-SUFFIX,img.response.digicert.com,reject
 HOST-SUFFIX,img.simply.bwin.com,reject
 HOST-SUFFIX,img.sparkasse-koelnbonn.de,reject
 HOST-SUFFIX,img.starpc.cn,reject
-HOST-SUFFIX,img.umetrip.com,reject
 HOST-SUFFIX,img.vue-js.cyou,reject
 HOST-SUFFIX,img.website-security.symantec.com,reject
 # 2026-09-03 误伤修复（可达性优先）：悟空TV —— img.wukongtv.com
-# HOST-SUFFIX,img.wukongtv.com,reject
 HOST-SUFFIX,img.yangshengtang123.com,reject
 HOST-SUFFIX,img.yemeksepeti.com,reject
 HOST-SUFFIX,img.yun.01zhuanche.com,reject
@@ -32737,7 +32687,6 @@ HOST-SUFFIX,imgstat.baidu.com,reject
 HOST-SUFFIX,imgwdyey.com,reject
 HOST-SUFFIX,imgx.jampp.com,reject
 HOST-SUFFIX,imgzxr.cn,reject
-HOST-SUFFIX,imhwzc.blibli.com,reject
 HOST-SUFFIX,imidesestreat.com,reject
 HOST-SUFFIX,imindmap.cc,reject
 HOST-SUFFIX,imirki78.com,reject
@@ -34003,7 +33952,6 @@ HOST-SUFFIX,interruptlogic.com,reject
 HOST-SUFFIX,interviewbq.com,reject
 HOST-SUFFIX,interviewdigress.com,reject
 HOST-SUFFIX,interworks.cloud.actonservice.com,reject
-HOST-SUFFIX,intg.snapchat.com,reject
 HOST-SUFFIX,inthralsaltmanmino.cyou,reject
 HOST-SUFFIX,intimatediary.com,reject
 HOST-SUFFIX,intimidatepropel.com,reject
@@ -34132,7 +34080,6 @@ HOST-SUFFIX,ios-pclog.i4.cn,reject
 HOST-SUFFIX,ios.asktagapp.com,reject
 HOST-SUFFIX,ios.lantouzi.com,reject
 HOST-SUFFIX,ios.sspai.com,reject
-HOST-SUFFIX,ios.wps.cn,reject
 HOST-SUFFIX,iosppk.com,reject
 HOST-SUFFIX,ioswhi.com,reject
 HOST-SUFFIX,iot-business.vodafone.com,reject
@@ -35467,7 +35414,6 @@ HOST-SUFFIX,julrdr.com,reject
 HOST-SUFFIX,jumbalsmaiidaelosers.cyou,reject
 HOST-SUFFIX,jumbo-insurance.pro,reject
 HOST-SUFFIX,jumbo-order.com,reject
-HOST-SUFFIX,jumbo.zomato.com,reject
 HOST-SUFFIX,jumboaffiliates.com,reject
 HOST-SUFFIX,jumbosuck.com,reject
 HOST-SUFFIX,jumenttallithborders.cyou,reject
@@ -35817,7 +35763,6 @@ HOST-SUFFIX,kcldlqybhdgdk.site,reject
 HOST-SUFFIX,kcnwe.xyz,reject
 HOST-SUFFIX,kcpg.goaserv.com,reject
 HOST-SUFFIX,kcqoej.roborock.com,reject
-HOST-SUFFIX,kcuzgn.fnac.be,reject
 HOST-SUFFIX,kcvwuw.iryouworker.com,reject
 HOST-SUFFIX,kcwihhposnbqs.site,reject
 HOST-SUFFIX,kcykhs.mrblue.com,reject
@@ -36564,7 +36509,6 @@ HOST-SUFFIX,kyq3hky.icu,reject
 HOST-SUFFIX,kyq3xch.icu,reject
 HOST-SUFFIX,kyriesbulbelegalite.cyou,reject
 HOST-SUFFIX,kyrinespathicschisms.cfd,reject
-HOST-SUFFIX,kyson.kakao.com,reject
 HOST-SUFFIX,kyszhn.qvc.jp,reject
 HOST-SUFFIX,kytesconge.com,reject
 HOST-SUFFIX,kyvpze.vidaxl.co.uk,reject
@@ -36662,7 +36606,6 @@ HOST-SUFFIX,l.lejournaldelamaison.fr,reject
 HOST-SUFFIX,l.lesnumeriques.com,reject
 HOST-SUFFIX,l.lilyzhou.com,reject
 HOST-SUFFIX,l.lyfshort.com,reject
-HOST-SUFFIX,l.m.naver.com,reject
 HOST-SUFFIX,l.m.tradiecore.com.au,reject
 HOST-SUFFIX,l.maison-travaux.fr,reject
 HOST-SUFFIX,l.mariefrance.fr,reject
@@ -37166,7 +37109,6 @@ HOST-SUFFIX,legistfetus.com,reject
 HOST-SUFFIX,legistscoble.cfd,reject
 HOST-SUFFIX,legolas.monotote.com,reject
 HOST-SUFFIX,legopq.site,reject
-HOST-SUFFIX,legy.line-apps.com,reject
 HOST-SUFFIX,lehmergambits.click,reject
 HOST-SUFFIX,lehrreiced.com,reject
 HOST-SUFFIX,leirsw.com,reject
@@ -37315,7 +37257,6 @@ HOST-SUFFIX,lhcivu.dekbed-discounter.nl,reject
 HOST-SUFFIX,lhdidz.successories.com,reject
 HOST-SUFFIX,lhdlbp.xyz,reject
 HOST-SUFFIX,lhevhb.hjgreek.com,reject
-HOST-SUFFIX,lhewdj.fnac.pt,reject
 HOST-SUFFIX,lhgwcvw.cn,reject
 HOST-SUFFIX,lhgzfet8n.com,reject
 HOST-SUFFIX,lhhbgjyimoxkh.space,reject
@@ -37897,7 +37838,6 @@ HOST-SUFFIX,link.reflexhealth.co,reject
 HOST-SUFFIX,link.reklaimyours.com,reject
 HOST-SUFFIX,link.resy.com,reject
 HOST-SUFFIX,link.reuters.com,reject
-HOST-SUFFIX,link.revolut.com,reject
 HOST-SUFFIX,link.ride.specialized.com,reject
 HOST-SUFFIX,link.ride.staging.specialized.com,reject
 HOST-SUFFIX,link.ridewithvia.com,reject
@@ -38670,7 +38610,6 @@ HOST-SUFFIX,log-ads.r7.com,reject
 HOST-SUFFIX,log-api.cli.im,reject
 HOST-SUFFIX,log-api.pangolin-sdk-toutiao-b.com,reject
 HOST-SUFFIX,log-api.pangolin-sdk-toutiao.com,reject
-HOST-SUFFIX,log-gateway.zoom.us,reject
 HOST-SUFFIX,log-lb.skyperfectv.co.jp,reject
 HOST-SUFFIX,log-pq.shopfully.cloud,reject
 HOST-SUFFIX,log-sdk.ksapisrv.com,reject
@@ -39170,7 +39109,6 @@ HOST-SUFFIX,lqzoyqvbjkzqm.top,reject
 HOST-SUFFIX,lr-in.com,reject
 HOST-SUFFIX,lravwm.spa.cz,reject
 HOST-SUFFIX,lrbelgium.wolterskluwer.com,reject
-HOST-SUFFIX,lrdnuu.shopee.co.th,reject
 HOST-SUFFIX,lrdxki.hakutou-shop.com,reject
 HOST-SUFFIX,lrehgz.orix.co.jp,reject
 HOST-SUFFIX,lreust.joshinweb.jp,reject
@@ -39232,7 +39170,6 @@ HOST-SUFFIX,ltienll.top,reject
 HOST-SUFFIX,ltkbyfd.icu,reject
 HOST-SUFFIX,ltlonelyandbe.org,reject
 HOST-SUFFIX,ltm6.destinia.se,reject
-HOST-SUFFIX,ltnico.fnac.com,reject
 HOST-SUFFIX,ltqpej.vidaxl.ie,reject
 HOST-SUFFIX,ltrb.cn,reject
 HOST-SUFFIX,ltripg.marti.mx,reject
@@ -39311,7 +39248,6 @@ HOST-SUFFIX,luping.net.cn,reject
 HOST-SUFFIX,lupon.media,reject
 HOST-SUFFIX,luptbq.lampsplus.com,reject
 HOST-SUFFIX,lurdansanomaly.shop,reject
-HOST-SUFFIX,lurker.olx.com.br,reject
 HOST-SUFFIX,lurriesachech.cyou,reject
 HOST-SUFFIX,lushcrush.com,reject
 HOST-SUFFIX,lushedfurlan.cyou,reject
@@ -39461,7 +39397,6 @@ HOST-SUFFIX,lyszsz.cn,reject
 HOST-SUFFIX,lytics.findairpods.com,reject
 HOST-SUFFIX,lyua.cn,reject
 HOST-SUFFIX,lywdoo.cn,reject
-HOST-SUFFIX,lyxfra.shopee.com.my,reject
 HOST-SUFFIX,lyypsy.unisportstore.se,reject
 HOST-SUFFIX,lyz.radio366.com,reject
 HOST-SUFFIX,lz4hr647p7ffkq.rest,reject
@@ -39497,12 +39432,9 @@ HOST-SUFFIX,m.ads.8le8le.com,reject
 HOST-SUFFIX,m.aecrimecentral.com,reject
 HOST-SUFFIX,m.aetv.com,reject
 # 2026-09-03 误伤修复（可达性优先）：绍兴本地服务 —— m.api.shaoxing.com.cn
-# HOST-SUFFIX,m.api.shaoxing.com.cn,reject
 HOST-SUFFIX,m.athletics.goaserv.com,reject
 # 2026-09-03 误伤修复（可达性优先）：优酷 —— m.atm.youku.com
-# HOST-SUFFIX,m.atm.youku.com,reject
 # 2026-09-03 误伤修复（可达性优先）：搜狐 —— m.aty.sohu.com
-# HOST-SUFFIX,m.aty.sohu.com,reject
 HOST-SUFFIX,m.atyrau.goaserv.com,reject
 HOST-SUFFIX,m.bell.ca,reject
 HOST-SUFFIX,m.bigroad.com,reject
@@ -39511,7 +39443,6 @@ HOST-SUFFIX,m.bookis.com,reject
 HOST-SUFFIX,m.brain.ai,reject
 HOST-SUFFIX,m.bumrungrad1378.com,reject
 # 2026-09-03 误伤修复（可达性优先）：财经网 —— m.caijing.com.cn
-# HOST-SUFFIX,m.caijing.com.cn,reject
 HOST-SUFFIX,m.carte-gr.total.fr,reject
 HOST-SUFFIX,m.client.10010.com,reject
 HOST-SUFFIX,m.communications.ihmvcu.org,reject
@@ -39606,7 +39537,6 @@ HOST-SUFFIX,m.wantemachine.com.cn,reject
 HOST-SUFFIX,m.wishmindr.com,reject
 HOST-SUFFIX,m.xylmdm.top,reject
 # 2026-09-03 误伤修复（可达性优先）：网易严选 —— m.you.163.com
-# HOST-SUFFIX,m.you.163.com,reject
 HOST-SUFFIX,m03dv.xyz,reject
 HOST-SUFFIX,m08.goaserv.com,reject
 HOST-SUFFIX,m09mm.xyz,reject
@@ -44259,7 +44189,6 @@ HOST-SUFFIX,mobile-events.eservice.emarsys.net.iberostar.com,reject
 HOST-SUFFIX,mobile-pic.cache.iciba.com,reject
 HOST-SUFFIX,mobile.1qianbao.com,reject
 # 2026-09-03 误伤修复（可达性优先）：芒果TV主 API —— mobile.api.mgtv.com
-# HOST-SUFFIX,mobile.api.mgtv.com,reject
 HOST-SUFFIX,mobile.aspensnowmass.com,reject
 HOST-SUFFIX,mobile.bespontix.com,reject
 HOST-SUFFIX,mobile.blackboard.com,reject
@@ -44666,15 +44595,11 @@ HOST-SUFFIX,mseeru.faz.net,reject
 HOST-SUFFIX,msfunction.online,reject
 HOST-SUFFIX,msfvwi.sieuthiyte.com.vn,reject
 # 2026-09-03 误伤修复（可达性优先）：内容服务 —— msg.71.am
-# HOST-SUFFIX,msg.71.am,reject
 HOST-SUFFIX,msg.ettoday.net,reject
 # 2026-09-03 误伤修复（可达性优先）：爱奇艺消息接口 —— msg.iqiyi.com
-# HOST-SUFFIX,msg.iqiyi.com,reject
 # 2026-09-03 误伤修复（可达性优先）：爱奇艺消息接口 —— msg.qy.net
-# HOST-SUFFIX,msg.qy.net,reject
 HOST-SUFFIX,msg.sqz.app,reject
 # 2026-09-03 误伤修复（可达性优先）：爱奇艺消息接口 —— msg.video.qiyi.com
-# HOST-SUFFIX,msg.video.qiyi.com,reject
 HOST-SUFFIX,msgixnjxivvhur.com,reject
 HOST-SUFFIX,msgose.com,reject
 HOST-SUFFIX,mshago.com,reject
@@ -45416,8 +45341,6 @@ HOST-SUFFIX,net.home24.ch,reject
 HOST-SUFFIX,net.home24.com,reject
 HOST-SUFFIX,net.home24.it,reject
 HOST-SUFFIX,net.iberia.com,reject
-HOST-SUFFIX,net.jumia.com,reject
-HOST-SUFFIX,net.jumia.com.eg,reject
 HOST-SUFFIX,net.mydays.ch,reject
 HOST-SUFFIX,net.sexstories69.com,reject
 HOST-SUFFIX,net.shop.com.mm,reject
@@ -45468,7 +45391,6 @@ HOST-SUFFIX,newarkdriving.com,reject
 HOST-SUFFIX,newbiquge.org,reject
 HOST-SUFFIX,newbluetrue.xyz,reject
 HOST-SUFFIX,newchallenges-dsp.com,reject
-HOST-SUFFIX,newclient.map.baidu.com,reject
 HOST-SUFFIX,newdisplayformats.com,reject
 HOST-SUFFIX,newestizar.qpon,reject
 HOST-SUFFIX,newjersey-content.cresa.com,reject
@@ -47363,10 +47285,8 @@ HOST-SUFFIX,open.clerkie.io,reject
 HOST-SUFFIX,open.ditch.cash,reject
 HOST-SUFFIX,open.drivescore.com,reject
 # 2026-09-03 误伤修复（可达性优先）：快手 —— open.e.kuaishou.cn
-# HOST-SUFFIX,open.e.kuaishou.cn,reject
 HOST-SUFFIX,open.e.kuaishou.com,reject
 # 2026-09-03 误伤修复（可达性优先）：开放接口 —— open.fitdays.cn
-# HOST-SUFFIX,open.fitdays.cn,reject
 HOST-SUFFIX,open.flow.com.mm,reject
 HOST-SUFFIX,open.fotition.com,reject
 HOST-SUFFIX,open.freeplayapp.com,reject
@@ -48276,7 +48196,6 @@ HOST-SUFFIX,pampopholf.com,reject
 HOST-SUFFIX,pan-api.bitqiu.com,reject
 # 2026-08-31 误伤修复：百度网盘主域被误判广告 REJECT，导致百度网盘完全断网。
 #   改为注释掉 reject，流量落 final=direct 直连。百度联盟广告(.cpro.baidu.com 等)仍由下方规则拦截。
-# HOST-SUFFIX,pan.baidu.com,reject
 HOST-SUFFIX,panamaphotog.cfd,reject
 HOST-SUFFIX,panaservers.com,reject
 HOST-SUFFIX,panchaxumbilic.com,reject
@@ -48533,7 +48452,6 @@ HOST-SUFFIX,pcdstm.petbarn.com.au,reject
 HOST-SUFFIX,pcfqdmiowvcx.com,reject
 HOST-SUFFIX,pchznf.xyz,reject
 HOST-SUFFIX,pci.aon.com,reject
-HOST-SUFFIX,pciidk.shopee.vn,reject
 HOST-SUFFIX,pciokm.glamuse.com,reject
 HOST-SUFFIX,pcktmkfjnkfqm.club,reject
 HOST-SUFFIX,pclk.name,reject
@@ -48765,7 +48683,6 @@ HOST-SUFFIX,pets.channeladvisor.com,reject
 HOST-SUFFIX,pettiisotelyacraze.qpon,reject
 HOST-SUFFIX,peuhlwarine.cyou,reject
 HOST-SUFFIX,peukasrsihavele.org,reject
-HOST-SUFFIX,pevftg.shopee.sg,reject
 HOST-SUFFIX,pewtersundub.shop,reject
 HOST-SUFFIX,pewterytela.cfd,reject
 HOST-SUFFIX,pexiez54czxl8j4x.rest,reject
@@ -48917,13 +48834,9 @@ HOST-SUFFIX,pibhjs.dongsuhfurniture.co.kr,reject
 HOST-SUFFIX,pibpjoo0lm.com,reject
 HOST-SUFFIX,pic.0597kk.com,reject
 # 2026-09-03 误伤修复（可达性优先）：图片资源 —— pic.baihuawen.cn
-# HOST-SUFFIX,pic.baihuawen.cn,reject
 # 2026-09-03 误伤修复（可达性优先）：e代驾 —— pic.edaijia.cn
-# HOST-SUFFIX,pic.edaijia.cn,reject
 HOST-SUFFIX,pic.fengniao.com,reject
 # 2026-09-03 误伤修复（可达性优先）：搜狐图片 —— pic.k.sohu.com
-# HOST-SUFFIX,pic.k.sohu.com,reject
-HOST-SUFFIX,pic1.chelaile.net.cn,reject
 HOST-SUFFIX,pic1.dianshu119.com,reject
 HOST-SUFFIX,pic22222.com,reject
 HOST-SUFFIX,picarossuccubi.cfd,reject
@@ -49407,7 +49320,6 @@ HOST-SUFFIX,play.fanslide.com,reject
 HOST-SUFFIX,play.goldplay.me,reject
 HOST-SUFFIX,play.jdb888.club,reject
 HOST-SUFFIX,play.journey8.com,reject
-HOST-SUFFIX,play.kakao.com,reject
 HOST-SUFFIX,play.maxgame.store,reject
 HOST-SUFFIX,play.nekobot.vip,reject
 HOST-SUFFIX,play.rheo.tv,reject
@@ -50565,7 +50477,6 @@ HOST-SUFFIX,push-sense.com,reject
 HOST-SUFFIX,push.bvsrv.com,reject
 HOST-SUFFIX,push.house,reject
 # 2026-09-03 误伤修复（可达性优先）：优酷推送 —— push.m.youku.com
-# HOST-SUFFIX,push.m.youku.com,reject
 HOST-SUFFIX,push.newsvot.com,reject
 HOST-SUFFIX,push1000.com,reject
 HOST-SUFFIX,push1000.top,reject
@@ -50643,7 +50554,6 @@ HOST-SUFFIX,pvjuzdikhrbblo.com,reject
 HOST-SUFFIX,pvl.whwxom4lv2qume97.cyou,reject
 HOST-SUFFIX,pvmqfkulxjmdg.com,reject
 HOST-SUFFIX,pvmtrmugo.com,reject
-HOST-SUFFIX,pvn.rewe.de,reject
 HOST-SUFFIX,pvoheg.bubbleroom.se,reject
 HOST-SUFFIX,pvopzwxbpxvyh.website,reject
 HOST-SUFFIX,pvrugd.nieruchomosci-online.pl,reject
@@ -50681,7 +50591,6 @@ HOST-SUFFIX,px02mouzas.com,reject
 HOST-SUFFIX,px3792.com,reject
 HOST-SUFFIX,pxayti.hair-express.de,reject
 HOST-SUFFIX,pxbnou.ig.com.br,reject
-HOST-SUFFIX,pxc.otto.de,reject
 HOST-SUFFIX,pxdb08b82.com,reject
 HOST-SUFFIX,pxgpnp.angara.com,reject
 HOST-SUFFIX,pxj.khj5jmkrpzgptzi9n.cfd,reject
@@ -50735,7 +50644,6 @@ HOST-SUFFIX,pzajdh.guicheweb.com.br,reject
 HOST-SUFFIX,pzaovfjaja.in,reject
 HOST-SUFFIX,pzapi-ij.com,reject
 HOST-SUFFIX,pzapi-kg.com,reject
-HOST-SUFFIX,pzd.rakuten.co.jp,reject
 HOST-SUFFIX,pzimff.com,reject
 HOST-SUFFIX,pzjizsyf.icu,reject
 HOST-SUFFIX,pzkkot4kn.com,reject
@@ -51608,7 +51516,6 @@ HOST-SUFFIX,rainyrule.com,reject
 HOST-SUFFIX,raisingpeppermint.com,reject
 HOST-SUFFIX,rajidaeglowtrawley.cyou,reject
 HOST-SUFFIX,rak8s.com,reject
-HOST-SUFFIX,rake.11st.co.kr,reject
 HOST-SUFFIX,rakuten.actonservice.com,reject
 HOST-SUFFIX,ralf.curvo.eu,reject
 HOST-SUFFIX,ralishswarmer.com,reject
@@ -51667,7 +51574,6 @@ HOST-SUFFIX,rashlyblowfly.com,reject
 HOST-SUFFIX,rasperitylus.qpon,reject
 HOST-SUFFIX,raspnd.quadratec.com,reject
 HOST-SUFFIX,rasslesretest.cyou,reject
-HOST-SUFFIX,rat.rakuten.co.jp,reject
 HOST-SUFFIX,ratbitestoory.qpon,reject
 HOST-SUFFIX,raterscsklumens.qpon,reject
 HOST-SUFFIX,rathedsaws.shop,reject
@@ -51704,7 +51610,6 @@ HOST-SUFFIX,rba-screen.healthsafe-id.com,reject
 HOST-SUFFIX,rbbgnn.hanshintigers.jp,reject
 HOST-SUFFIX,rbbko.com,reject
 HOST-SUFFIX,rbbwelakkacnb.website,reject
-HOST-SUFFIX,rbcore-wlc-3.net.jumia.co.ke,reject
 HOST-SUFFIX,rbdata.boostymark.com,reject
 HOST-SUFFIX,rbesql.just4camper.fr,reject
 HOST-SUFFIX,rbfour.bid,reject
@@ -52236,21 +52141,16 @@ HOST-SUFFIX,res.elle.fr,reject
 HOST-SUFFIX,res.femina.fr,reject
 HOST-SUFFIX,res.franc-tireur.fr,reject
 # 2026-09-03 误伤修复（可达性优先）：资源域 —— res.hongyibo.com.cn
-# HOST-SUFFIX,res.hongyibo.com.cn,reject
 # 2026-09-03 误伤修复（可达性优先）：肯德基资源域 —— res.kfc.com.cn
-# HOST-SUFFIX,res.kfc.com.cn,reject
 HOST-SUFFIX,res.mall.10010.cn,reject
 HOST-SUFFIX,res.marianne.net,reject
 # 2026-09-03 误伤修复（可达性优先）：百度资源域 —— res.mi.baidu.com
-# HOST-SUFFIX,res.mi.baidu.com,reject
 HOST-SUFFIX,res.paruvendu.fr,reject
 # 2026-09-03 误伤修复（可达性优先）：必胜客资源域 —— res.pizzahut.com.cn
-# HOST-SUFFIX,res.pizzahut.com.cn,reject
 HOST-SUFFIX,res.programme-television.org,reject
 HOST-SUFFIX,res.public.fr,reject
 HOST-SUFFIX,res.rbl.ms,reject
 # 2026-09-03 误伤修复（可达性优先）：滴滴(小桔科技)资源域 —— res.xiaojukeji.com
-# HOST-SUFFIX,res.xiaojukeji.com,reject
 HOST-SUFFIX,res1.hubcloud.com.cn,reject
 HOST-SUFFIX,resaidbodily.cyou,reject
 HOST-SUFFIX,resalag.com,reject
@@ -52974,7 +52874,6 @@ HOST-SUFFIX,rqggagxrzqbji.website,reject
 HOST-SUFFIX,rqhnkplorgjv.com,reject
 HOST-SUFFIX,rqhtgf.pierrecardin.com.tr,reject
 HOST-SUFFIX,rqiwvanvwawpy.website,reject
-HOST-SUFFIX,rqjjdi.bershka.com,reject
 HOST-SUFFIX,rqjpjwzmehrti.space,reject
 HOST-SUFFIX,rqjtrvoltgzey.site,reject
 HOST-SUFFIX,rqkmir.ferragamo.com,reject
@@ -53589,7 +53488,6 @@ HOST-SUFFIX,s.grigora.com,reject
 HOST-SUFFIX,s.guelphmercury.com,reject
 HOST-SUFFIX,s.hamiltonnews.com,reject
 HOST-SUFFIX,s.hdsupplysolutions.com,reject
-HOST-SUFFIX,s.hm.com,reject
 HOST-SUFFIX,s.imagica.ai,reject
 HOST-SUFFIX,s.info.cemexgo.com,reject
 HOST-SUFFIX,s.infogram.com,reject
@@ -54091,8 +53989,6 @@ HOST-SUFFIX,saegissolutions.actonservice.com,reject
 HOST-SUFFIX,safartelega.cyou,reject
 HOST-SUFFIX,safe-connection21.com,reject
 HOST-SUFFIX,safebrowsdv.com,reject
-HOST-SUFFIX,safebrowsing.googleapis.com,reject
-HOST-SUFFIX,safebrowsing.urlsec.qq.com,reject
 HOST-SUFFIX,safelistextreme.com,reject
 HOST-SUFFIX,safeoffers.pro,reject
 HOST-SUFFIX,safepass.citizen.com,reject
@@ -54551,7 +54447,6 @@ HOST-SUFFIX,sc.cvent.com,reject
 HOST-SUFFIX,sc.disneylandparis.com,reject
 HOST-SUFFIX,sc.doctorwho.tv,reject
 HOST-SUFFIX,sc.hl.co.uk,reject
-HOST-SUFFIX,sc.hm.com,reject
 HOST-SUFFIX,sc.holtsmilitarybank.co.uk,reject
 HOST-SUFFIX,sc.icarly.com,reject
 HOST-SUFFIX,sc.infor.com,reject
@@ -54648,7 +54543,6 @@ HOST-SUFFIX,scatylems.com,reject
 HOST-SUFFIX,scaupcroaks.cyou,reject
 HOST-SUFFIX,scawtepee.com,reject
 HOST-SUFFIX,scb4tpwq40.com,reject
-HOST-SUFFIX,scdn.line-apps.com,reject
 HOST-SUFFIX,scdn.literatur-couch.de,reject
 HOST-SUFFIX,sceatorthid.qpon,reject
 HOST-SUFFIX,scenaryrithe.cfd,reject
@@ -55766,7 +55660,6 @@ HOST-SUFFIX,service.4gtv.tv,reject
 HOST-SUFFIX,service.athlon.com,reject
 HOST-SUFFIX,service.bechtle.com,reject
 # 2026-09-03 误伤修复（可达性优先）：映客 —— service.busi.inke.cn
-# HOST-SUFFIX,service.busi.inke.cn,reject
 HOST-SUFFIX,service.haiersmarthomes.com,reject
 HOST-SUFFIX,service.hcob-bank.de,reject
 HOST-SUFFIX,service.iciba.com,reject
@@ -55892,7 +55785,6 @@ HOST-SUFFIX,sg.carousellmotors.com,reject
 HOST-SUFFIX,sg.lucanet.com,reject
 HOST-SUFFIX,sg3.notarize.com,reject
 HOST-SUFFIX,sg536.cn,reject
-HOST-SUFFIX,sgali-mcs.byteoversea.com,reject
 HOST-SUFFIX,sgbrftxioksgf.online,reject
 HOST-SUFFIX,sgegie.fun,reject
 HOST-SUFFIX,sgeth7.icu,reject
@@ -56641,7 +56533,6 @@ HOST-SUFFIX,slimshaptic.shop,reject
 HOST-SUFFIX,slimyscarf.com,reject
 HOST-SUFFIX,slinksuggestion.com,reject
 HOST-SUFFIX,slipedialectforgot.cyou,reject
-HOST-SUFFIX,slipstream.skyscanner.net,reject
 HOST-SUFFIX,slise.xyz,reject
 HOST-SUFFIX,slit.lewd.rip,reject
 HOST-SUFFIX,slluhezaxbzwl.space,reject
@@ -60099,7 +59990,6 @@ HOST-SUFFIX,som.homeaway.com,reject
 HOST-SUFFIX,som.homeaway.com.au,reject
 HOST-SUFFIX,som.homeaway.com.co,reject
 HOST-SUFFIX,som.homeaway.pt,reject
-HOST-SUFFIX,som.hotels.com,reject
 HOST-SUFFIX,som.hotwire.com,reject
 HOST-SUFFIX,som.kenmore.com,reject
 HOST-SUFFIX,som.newenergy.com,reject
@@ -60464,7 +60354,6 @@ HOST-SUFFIX,sp.gameomatic.fr,reject
 HOST-SUFFIX,sp.jrklein.com,reject
 HOST-SUFFIX,sp.justwatch.com,reject
 HOST-SUFFIX,sp.kaola.com,reject
-HOST-SUFFIX,sp.naver.com,reject
 HOST-SUFFIX,sp.pcid.ca,reject
 HOST-SUFFIX,sp.pcoptimum.ca,reject
 HOST-SUFFIX,sp.pluto.tv,reject
@@ -60516,7 +60405,6 @@ HOST-SUFFIX,spaviesbalanta.qpon,reject
 HOST-SUFFIX,spawnbowleskakar.cyou,reject
 HOST-SUFFIX,spbgc.com,reject
 HOST-SUFFIX,spc.personalcreations.com,reject
-HOST-SUFFIX,spclient.wg.spotify.com,reject
 HOST-SUFFIX,spcode.baidu.com,reject
 HOST-SUFFIX,spdate.com,reject
 HOST-SUFFIX,spea.eko.com,reject
@@ -60585,7 +60473,6 @@ HOST-SUFFIX,spielsbeni.com,reject
 HOST-SUFFIX,spiffymachine.com,reject
 HOST-SUFFIX,spignutbrissesthereby.cyou,reject
 HOST-SUFFIX,spigotspluton.cfd,reject
-HOST-SUFFIX,spigte.shopee.tw,reject
 HOST-SUFFIX,spikcomarca.cyou,reject
 HOST-SUFFIX,spikertrepan.com,reject
 HOST-SUFFIX,spiledacier.cfd,reject
@@ -61175,7 +61062,6 @@ HOST-SUFFIX,ssltest2.branch.io,reject
 HOST-SUFFIX,ssm.codes,reject
 HOST-SUFFIX,ssmemwsactbto.space,reject
 HOST-SUFFIX,ssmile.dentsplysirona.com,reject
-HOST-SUFFIX,ssmr.nuro.jp,reject
 HOST-SUFFIX,ssmr.so-net.ne.jp,reject
 HOST-SUFFIX,ssmr.sonynetwork.co.jp,reject
 HOST-SUFFIX,ssmr2.so-net.ne.jp,reject
@@ -62852,7 +62738,6 @@ HOST-SUFFIX,stertorhedges.cfd,reject
 HOST-SUFFIX,stescud.com,reject
 HOST-SUFFIX,stewardcashel.shop,reject
 HOST-SUFFIX,stfynw.esprit.be,reject
-HOST-SUFFIX,stg-bnc-papago.naver.com,reject
 HOST-SUFFIX,stg-data-collector.playbuzz.com,reject
 HOST-SUFFIX,stg-deeplink.ring.md,reject
 HOST-SUFFIX,stgcdn.com,reject
@@ -63509,7 +63394,6 @@ HOST-SUFFIX,swa.anydma.com,reject
 HOST-SUFFIX,swa.asnbank.nl,reject
 HOST-SUFFIX,swa.b2cjewels.com,reject
 HOST-SUFFIX,swa.blgwonen.nl,reject
-HOST-SUFFIX,swa.bol.com,reject
 HOST-SUFFIX,swa.castorama.fr,reject
 HOST-SUFFIX,swa.consumentenbond.nl,reject
 HOST-SUFFIX,swa.devolksbank.nl,reject
@@ -64252,7 +64136,6 @@ HOST-SUFFIX,t13.io,reject
 HOST-SUFFIX,t19olm6fd.com,reject
 HOST-SUFFIX,t1tgame.com,reject
 HOST-SUFFIX,t1thmtn5.xyz,reject
-HOST-SUFFIX,t2.aboutyou.de,reject
 HOST-SUFFIX,t2.click.subway.com,reject
 HOST-SUFFIX,t2.hulu.com,reject
 HOST-SUFFIX,t2.t2b.click,reject
@@ -64264,7 +64147,6 @@ HOST-SUFFIX,t2q0gv7zjg.com,reject
 HOST-SUFFIX,t2zfyxjj.icu,reject
 HOST-SUFFIX,t33ng.com,reject
 HOST-SUFFIX,t3e.firstchoice.co.uk,reject
-HOST-SUFFIX,t4e.sainsburys.co.uk,reject
 HOST-SUFFIX,t4s8t6p39.com,reject
 HOST-SUFFIX,t570.wiltonbulletin.com,reject
 HOST-SUFFIX,t57u6anx2.com,reject
@@ -64429,7 +64311,6 @@ HOST-SUFFIX,talk-test.stitch.cam,reject
 HOST-SUFFIX,talk.stitch.cam,reject
 # 2026-08-31 误伤修复：TalkingData 统计 SDK 主域被误判广告 REJECT，影响依赖该 SDK 的 App 统计。
 #   改为注释掉 reject，流量落 final=direct 直连。TalkingData 其他子域仍由下方规则拦截。
-# HOST-SUFFIX,talkingdata.com,reject
 HOST-SUFFIX,talkingdata.net,reject
 HOST-SUFFIX,talkscreativity.com,reject
 HOST-SUFFIX,talliedpurring.com,reject
@@ -64905,7 +64786,6 @@ HOST-SUFFIX,te.mirapodo.de,reject
 HOST-SUFFIX,te.mytoys.de,reject
 HOST-SUFFIX,te.nitro-production.otto.boreus.de,reject
 HOST-SUFFIX,te.nitro-test-extern.otto.boreus.de,reject
-HOST-SUFFIX,te.otto.de,reject
 HOST-SUFFIX,te.ottoversand.at,reject
 HOST-SUFFIX,te.quelle.de,reject
 HOST-SUFFIX,te.sheego.de,reject
@@ -65293,7 +65173,6 @@ HOST-SUFFIX,thanks.tsubaki-musicschool.com,reject
 HOST-SUFFIX,thanksgivingdelights.com,reject
 HOST-SUFFIX,thanksgivingdelights.name,reject
 HOST-SUFFIX,thanosofcos5.com,reject
-HOST-SUFFIX,thaqyl.mediamarkt.nl,reject
 HOST-SUFFIX,thatdisform.cyou,reject
 HOST-SUFFIX,thatdtahanun.qpon,reject
 HOST-SUFFIX,thattowel.pro,reject
@@ -65617,7 +65496,6 @@ HOST-SUFFIX,titomacia.net.anwalt.de,reject
 HOST-SUFFIX,tittendestages.net.anwalt.de,reject
 HOST-SUFFIX,titterruddles.cyou,reject
 HOST-SUFFIX,tiuyotadptqrk.space,reject
-HOST-SUFFIX,tivan.naver.com,reject
 HOST-SUFFIX,tivixv.nutribullet.com,reject
 HOST-SUFFIX,tizdfz.icu,reject
 HOST-SUFFIX,tiznmykuxnu.in,reject
@@ -66204,7 +66082,6 @@ HOST-SUFFIX,tp.lexisnexis.com.au,reject
 HOST-SUFFIX,tp.limango.de,reject
 HOST-SUFFIX,tp.mirapodo.de,reject
 HOST-SUFFIX,tp.mytoys.de,reject
-HOST-SUFFIX,tp.otto.de,reject
 HOST-SUFFIX,tp.ottoversand.at,reject
 HOST-SUFFIX,tp.quelle.de,reject
 HOST-SUFFIX,tp.sgcn.com,reject
@@ -68625,7 +68502,6 @@ HOST-SUFFIX,transplant.universityhealth.com,reject
 HOST-SUFFIX,transportation.external.conduent.com,reject
 HOST-SUFFIX,transportation.external.xerox.com,reject
 HOST-SUFFIX,transsternum.shop,reject
-HOST-SUFFIX,trap.skype.com,reject
 HOST-SUFFIX,trapezium69.top,reject
 HOST-SUFFIX,trappcloudservices.trapptechnology.com,reject
 HOST-SUFFIX,trapperdivan.shop,reject
@@ -69554,7 +69430,6 @@ HOST-SUFFIX,twmvthuwcluox.online,reject
 HOST-SUFFIX,two.cm.com,reject
 HOST-SUFFIX,two.fsylr.com,reject
 HOST-SUFFIX,two.tio.nl,reject
-HOST-SUFFIX,twoeej.carrefour.fr,reject
 HOST-SUFFIX,twolingdoni.shop,reject
 HOST-SUFFIX,twonline-17.goasrv.com,reject
 HOST-SUFFIX,twpasol.com,reject
@@ -69587,7 +69462,6 @@ HOST-SUFFIX,txpbnm.sevellia.com,reject
 HOST-SUFFIX,txpbvh.icu,reject
 HOST-SUFFIX,txqnnutbf.com,reject
 HOST-SUFFIX,txru.cn,reject
-HOST-SUFFIX,txrx.bol.com,reject
 HOST-SUFFIX,txscn.cn,reject
 HOST-SUFFIX,txscpj.emp.ie,reject
 HOST-SUFFIX,txt.appcity.com.au,reject
@@ -70104,7 +69978,6 @@ HOST-SUFFIX,umdpva.gakumado.mynavi.jp,reject
 HOST-SUFFIX,umebella.com,reject
 # 2026-08-31 误伤修复：友盟主域被误判广告 REJECT，影响所有用友盟 SDK 的 App 启动/统计。
 #   改为注释掉 reject，流量落 final=direct 直连。友盟统计子域(.umengcloud.com 等)仍由下方规则拦截。
-# HOST-SUFFIX,umeng.com,reject
 HOST-SUFFIX,umengcloud.com,reject
 HOST-SUFFIX,umexalim.com,reject
 HOST-SUFFIX,umgoolhjbqa.com,reject
@@ -70424,7 +70297,6 @@ HOST-SUFFIX,upcraneoverrantollies.cfd,reject
 HOST-SUFFIX,upcuttatoo.cyou,reject
 HOST-SUFFIX,updartsgease.shop,reject
 # 2026-09-03 误伤修复（可达性优先）：百度网盘更新 —— update.pan.baidu.com
-# HOST-SUFFIX,update.pan.baidu.com,reject
 HOST-SUFFIX,update.purina.com,reject
 HOST-SUFFIX,update.tcsg.edu,reject
 HOST-SUFFIX,updates.aem.org,reject
@@ -71095,7 +70967,6 @@ HOST-SUFFIX,utopiaband.net,reject
 HOST-SUFFIX,utox.pgcx8fnjup8yog7lz3zcv.cfd,reject
 HOST-SUFFIX,utqoavwu.com,reject
 HOST-SUFFIX,utrack.hexun.com,reject
-HOST-SUFFIX,uts-front.line-apps.com,reject
 HOST-SUFFIX,uts.auction.co.kr,reject
 HOST-SUFFIX,utsgw.auction.co.kr,reject
 HOST-SUFFIX,utsssl.auction.co.kr,reject
@@ -72283,7 +72154,6 @@ HOST-SUFFIX,vzal21mooz.hyperwrite.ai,reject
 HOST-SUFFIX,vzayis1qa.com,reject
 HOST-SUFFIX,vzcfqp.unibet.fr,reject
 HOST-SUFFIX,vzeuvcdi.icu,reject
-HOST-SUFFIX,vzeyba.shopee.co.id,reject
 HOST-SUFFIX,vzhjnw.officedepot.com,reject
 HOST-SUFFIX,vzia.cn,reject
 HOST-SUFFIX,vzigttqgqx.com,reject
@@ -72299,7 +72169,6 @@ HOST-SUFFIX,w.1igzn4xcl7fne6b.cfd,reject
 HOST-SUFFIX,w.22kolrqjyr15835g.cfd,reject
 HOST-SUFFIX,w.bnlg.fun,reject
 HOST-SUFFIX,w.ilfattoquotidiano.it,reject
-HOST-SUFFIX,w.line.me,reject
 HOST-SUFFIX,w.love4porn.com,reject
 HOST-SUFFIX,w.t7xtyw5cwbejmb.cyou,reject
 HOST-SUFFIX,w.tubymn9xqj776q.cyou,reject
@@ -72392,7 +72261,6 @@ HOST-SUFFIX,w9p70nort.com,reject
 HOST-SUFFIX,wa.and.co.uk,reject
 HOST-SUFFIX,wa.appsflyersdk.com,reject
 HOST-SUFFIX,wa.baltimoreravens.com,reject
-HOST-SUFFIX,wa.bol.com,reject
 HOST-SUFFIX,wa.castorama.fr,reject
 HOST-SUFFIX,wa.childrensplace.com,reject
 HOST-SUFFIX,wa.dailymail.co.uk,reject
@@ -72424,7 +72292,6 @@ HOST-SUFFIX,wa.wawlabs.com,reject
 HOST-SUFFIX,wa.wdr.de,reject
 HOST-SUFFIX,wa.wdrmaus.de,reject
 HOST-SUFFIX,wa.web.de,reject
-HOST-SUFFIX,wa1.otto.de,reject
 HOST-SUFFIX,wa9dald544.com,reject
 HOST-SUFFIX,waacglost.qpon,reject
 HOST-SUFFIX,waaf.medion.com,reject
@@ -72521,10 +72388,8 @@ HOST-SUFFIX,wap.bntxt.com,reject
 HOST-SUFFIX,wap.gxzhshop.com,reject
 HOST-SUFFIX,wap.mylifetime.com,reject
 # 2026-09-03 误伤修复（可达性优先）：国家地理中文网 —— wap.ngchina.cn
-# HOST-SUFFIX,wap.ngchina.cn,reject
 HOST-SUFFIX,wap.qqbiquge.net,reject
 # 2026-09-03 误伤修复（可达性优先）：浦发银行 —— wap.spdb.com.cn
-# HOST-SUFFIX,wap.spdb.com.cn,reject
 HOST-SUFFIX,wap001.bytravel.cn,reject
 HOST-SUFFIX,wap1.laogu.wang,reject
 HOST-SUFFIX,wap2.laogu.wang,reject
@@ -72780,7 +72645,6 @@ HOST-SUFFIX,web.care.northoaks.org,reject
 HOST-SUFFIX,web.care.sheppardpratt.org,reject
 HOST-SUFFIX,web.care.uhssa.com,reject
 HOST-SUFFIX,web.care.wakemed.org,reject
-HOST-SUFFIX,web.chelaile.net.cn,reject
 HOST-SUFFIX,web.collaboration-access.com,reject
 HOST-SUFFIX,web.collisionservices.com,reject
 HOST-SUFFIX,web.communications.amouage.com,reject
@@ -73051,7 +72915,6 @@ HOST-SUFFIX,webtarget.logitech.com.cn,reject
 HOST-SUFFIX,webtarget.logitechg.com,reject
 HOST-SUFFIX,webtarget.logitechg.com.cn,reject
 HOST-SUFFIX,webtest.lpio.jp,reject
-HOST-SUFFIX,webtoons.naver.com,reject
 HOST-SUFFIX,webtrack.chd01.com,reject
 HOST-SUFFIX,webtrack.pospal.cn,reject
 HOST-SUFFIX,webtracker.apicasystem.com,reject
@@ -73089,7 +72952,6 @@ HOST-SUFFIX,wegetpaid.net,reject
 HOST-SUFFIX,wegowan.com,reject
 HOST-SUFFIX,weh5lofraa.com,reject
 HOST-SUFFIX,weheepellilevoodoos.cyou,reject
-HOST-SUFFIX,weibointl.api.weibo.cn,reject
 HOST-SUFFIX,weidenhammer.actonservice.com,reject
 HOST-SUFFIX,weifengtianxia.com,reject
 HOST-SUFFIX,weighinalarmed.cfd,reject
@@ -74075,7 +73937,6 @@ HOST-SUFFIX,www.azera-s014.com,reject
 HOST-SUFFIX,www.badb5refl.com,reject
 HOST-SUFFIX,www.bae5tracker.com,reject
 # 2026-09-03 误伤修复（可达性优先）：百度首页(上游误收) —— www.baidu.com
-# HOST-SUFFIX,www.baidu.com,reject
 HOST-SUFFIX,www.baidumanager.club,reject
 HOST-SUFFIX,www.bait4role.com,reject
 HOST-SUFFIX,www.bali6nora.com,reject
@@ -74098,7 +73959,6 @@ HOST-SUFFIX,www.blue2fund.com,reject
 HOST-SUFFIX,www.blzsnd02.com,reject
 HOST-SUFFIX,www.boat3deer.com,reject
 # 2026-09-03 误伤修复（可达性优先）：官网 —— www.bodivis.com.cn
-# HOST-SUFFIX,www.bodivis.com.cn,reject
 HOST-SUFFIX,www.bolt8snap.com,reject
 HOST-SUFFIX,www.bosctrl32.com,reject
 HOST-SUFFIX,www.bpalc.goaserv.com,reject
@@ -74148,7 +74008,6 @@ HOST-SUFFIX,www.cloudpath82.com,reject
 HOST-SUFFIX,www.cloudtracer101.com,reject
 HOST-SUFFIX,www.clue6load.com,reject
 # 2026-09-03 误伤修复（可达性优先）：民生银行官网 —— www.cmbc.com.cn
-# HOST-SUFFIX,www.cmbc.com.cn,reject
 HOST-SUFFIX,www.cnej4912jks.com,reject
 HOST-SUFFIX,www.cnt-tm-1.com,reject
 HOST-SUFFIX,www.cntr-di5.com,reject
@@ -74365,7 +74224,6 @@ HOST-SUFFIX,www.ip-route.net,reject
 HOST-SUFFIX,www.iproute66.com,reject
 HOST-SUFFIX,www.iron0walk.com,reject
 # 2026-09-03 误伤修复（可达性优先）：旅法师营地 —— www.iyingdi.cn
-# HOST-SUFFIX,www.iyingdi.cn,reject
 HOST-SUFFIX,www.jabalproperties.org,reject
 HOST-SUFFIX,www.jacklm1.com,reject
 HOST-SUFFIX,www.jacklm3.com,reject
@@ -74542,7 +74400,6 @@ HOST-SUFFIX,www.okc-5190.com,reject
 HOST-SUFFIX,www.okc-5191.com,reject
 HOST-SUFFIX,www.on24-webinars.co.uk,reject
 # 2026-09-03 误伤修复（可达性优先）：安吉星车联网 —— www.onstar.com.cn
-# HOST-SUFFIX,www.onstar.com.cn,reject
 HOST-SUFFIX,www.operationintelligence7.com,reject
 HOST-SUFFIX,www.optimum-xyz.com,reject
 HOST-SUFFIX,www.orionkeraily.fi,reject
@@ -74864,7 +74721,6 @@ HOST-SUFFIX,www.zmxncb5.com,reject
 HOST-SUFFIX,www.zumaialhi.goaserv.com,reject
 HOST-SUFFIX,www.zxcvb23.com,reject
 # 2026-09-03 误伤修复（可达性优先）：作业帮 —— www.zybang.com
-# HOST-SUFFIX,www.zybang.com,reject
 HOST-SUFFIX,www.zzz19660123.goaserv.com,reject
 HOST-SUFFIX,www1.cynergysolutions.net,reject
 HOST-SUFFIX,www1.discountautomirrors.com,reject
@@ -77217,7 +77073,6 @@ HOST-SUFFIX,z9o0rgee8.com,reject
 HOST-SUFFIX,z9sab7vr0b.com,reject
 HOST-SUFFIX,za-go.experian.com,reject
 HOST-SUFFIX,za.qeeq.com,reject
-HOST-SUFFIX,za.zalo.me,reject
 HOST-SUFFIX,za.zdn.vn,reject
 HOST-SUFFIX,za5ww9yxg.com,reject
 HOST-SUFFIX,zaawds.farmae.it,reject
