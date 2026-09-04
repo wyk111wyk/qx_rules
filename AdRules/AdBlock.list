@@ -6,7 +6,7 @@
 #   · blackmatrix7/ios_rule_script Privacy (2025-12-08) —— 隐私追踪
 #   · ISP Hijacking —— 运营商劫持
 #   · Advertising hostname 段 —— 国内 App 开屏/信息流
-# 统计: 生效 reject 77772 条 + direct(规则修正) 39 条
+# 统计: 生效 reject 77755 条 + direct(规则修正) 39 条
 # 误伤处置: 历次审计判定为误杀的条目（累计 196 条）已从列表内直接删除，
 #           不再保留注释行 —— 文件更干净，回滚依赖 git 历史与本地备份。
 # 顺序: 规则修正(direct) 置顶 → 广告拦截(reject)。QX 先匹配先生效，
@@ -73,6 +73,23 @@
 #         ① 核心功能子域名不能只认 api/capi/www/m，须含 newclient / spclient /
 #            idm / acs / api-new / webtoons / l.m 等形态；
 #         ② 随机前缀子域无法判别时，按可用性优先一律放行。
+# ----------------------------------------------------------------
+# 2026-09-04 四轮审计（长尾服务精选放行）
+#   来源: 三轮推送后，对仍生效 reject 跑「整条父域 + 浅层核心子域」双扫描，
+#         排除联盟/营销/追踪前缀与随机噪音站，挑出父域像真实服务的高置信疑似项。
+#   处置: 用户拍板放行精选 17 条（全部已直接删除，不保留注释行），分两类:
+#         国内媒体/直播/影视 7 条 ——
+#           api.caijingmobile.com(财经移动端) / api.fengshows.com(风行) /
+#           api.gaoqingdianshi.com(高清电视) / api.hengdianfilm.com(横店影视) /
+#           api.huomao.com(火猫直播) / api.laifeng.com(来疯直播) / app.badmintoncn.com(羽毛球中国)
+#         境外银行/出行/服务 10 条 ——
+#           app.bancobv.com.br(巴西BV银行) / app.bajajfinservmarkets.in(印度Bajaj金融) /
+#           ametrics.web.dnbbank.no(挪威DNB银行) / app.audibene.de(德国听力医疗) /
+#           app.awto.cl + app.awto.com.br(智利/巴西 Awto 打车) / api.touker.com(英国品牌) /
+#           app.ballet.org.uk(英国皇家芭蕾) / app.areyouin.io(活动社交) / app.atlasmission.com(公益)
+#   说明: 四轮累计删除 213 条误杀 reject 行（91+28+77+17）。其余约 1900 条浅层核心子域命中
+#         多为长尾营销/垃圾站主 API，无法靠算法确认，维持拦截；*.cloudfront.net 727 条
+#         随机哈希前缀仍属无法判别残留，靠实际遇到时上报处理。
 # ----------------------------------------------------------------
 # ================================================================
 
@@ -8842,7 +8859,6 @@ HOST-SUFFIX,ametriamosey.shop,reject
 HOST-SUFFIX,ametrics.finn.no,reject
 HOST-SUFFIX,ametrics.lumen.com,reject
 HOST-SUFFIX,ametrics.mheducation.com,reject
-HOST-SUFFIX,ametrics.web.dnbbank.no,reject
 HOST-SUFFIX,amezqu.fabrykaform.pl,reject
 HOST-SUFFIX,amftsawknf.com,reject
 HOST-SUFFIX,amgdgt.com,reject
@@ -9937,7 +9953,6 @@ HOST-SUFFIX,api.boohee.com,reject
 HOST-SUFFIX,api.bugsnag.com,reject
 HOST-SUFFIX,api.bunzlaucastle.com,reject
 HOST-SUFFIX,api.bwton.com,reject
-HOST-SUFFIX,api.caijingmobile.com,reject
 HOST-SUFFIX,api.caiyunapp.com,reject
 HOST-SUFFIX,api.catch.gift,reject
 HOST-SUFFIX,api.cdmcaac.com,reject
@@ -9953,16 +9968,12 @@ HOST-SUFFIX,api.douban.com,reject
 HOST-SUFFIX,api.elliehuxtable.com,reject
 HOST-SUFFIX,api.faba.pw,reject
 HOST-SUFFIX,api.fastmoonclimbed.com,reject
-HOST-SUFFIX,api.fengshows.com,reject
 HOST-SUFFIX,api.fuck.education,reject
 HOST-SUFFIX,api.fw.tv,reject
-HOST-SUFFIX,api.gaoqingdianshi.com,reject
 HOST-SUFFIX,api.hanju.koudaibaobao.com,reject
 # 2026-09-03 误伤修复（可达性优先）：好好住 —— api.haohaozhu.cn
-HOST-SUFFIX,api.hengdianfilm.com,reject
 HOST-SUFFIX,api.htp.ad-scope.com.cn,reject
 HOST-SUFFIX,api.huachenjie.com,reject
-HOST-SUFFIX,api.huomao.com,reject
 HOST-SUFFIX,api.imdb.us-east-1.prod.mario.imdbtv.amazon.dev,reject
 HOST-SUFFIX,api.indeedpower.com,reject
 # 2026-09-03 误伤修复（可达性优先）：主 API —— api.internetofcity.cn
@@ -9973,7 +9984,6 @@ HOST-SUFFIX,api.jxedt.com,reject
 HOST-SUFFIX,api.klico.co,reject
 HOST-SUFFIX,api.kmovie.gifshow.com,reject
 HOST-SUFFIX,api.kwaizt.com,reject
-HOST-SUFFIX,api.laifeng.com,reject
 # 2026-09-03 误伤修复：麦当劳中国主 API 被误判广告 REJECT，导致麦当劳小程序完全断网（提示"网络未连接"）。
 #   改为注释掉 reject，流量落 final=direct 直连。麦当劳境外域与统计子域(smetrics.mcdonalds.com / franchising.mcdonalds.ca / ctwmcd.com / ptwmcd.com)仍由下方规则拦截。
 # 2026-09-03 误伤修复（可达性优先）：医脉通 —— api.medlive.cn
@@ -10003,7 +10013,6 @@ HOST-SUFFIX,api.sodalife.xyz,reject
 # 2026-09-03 误伤修复（可达性优先）：主 API —— api.sogaha.cn
 HOST-SUFFIX,api.taou.com,reject
 HOST-SUFFIX,api.tipsoon.com,reject
-HOST-SUFFIX,api.touker.com,reject
 HOST-SUFFIX,api.ulife.group,reject
 # 2026-09-03 误伤修复（可达性优先）：看理想主 API —— api.vistopia.com.cn
 HOST-SUFFIX,api.vuevideo.net,reject
@@ -10142,25 +10151,16 @@ HOST-SUFFIX,app.api.qjjfin.com,reject
 HOST-SUFFIX,app.api.versa-ai.com,reject
 HOST-SUFFIX,app.appcity.com.au,reject
 HOST-SUFFIX,app.aquaservice.com,reject
-HOST-SUFFIX,app.areyouin.io,reject
 HOST-SUFFIX,app.arizonawildcats.com,reject
 HOST-SUFFIX,app.arkansasrazorbacks.com,reject
 HOST-SUFFIX,app.arts.kent.edu,reject
 HOST-SUFFIX,app.arts.uci.edu,reject
-HOST-SUFFIX,app.atlasmission.com,reject
 HOST-SUFFIX,app.auburntigers.com,reject
-HOST-SUFFIX,app.audibene.de,reject
 HOST-SUFFIX,app.auge.pro.br,reject
 HOST-SUFFIX,app.augustaentertainmentcomplex.com,reject
 HOST-SUFFIX,app.autotrader.com.au,reject
 HOST-SUFFIX,app.avopass.com,reject
-HOST-SUFFIX,app.awto.cl,reject
-HOST-SUFFIX,app.awto.com.br,reject
 HOST-SUFFIX,app.babycloud.in,reject
-HOST-SUFFIX,app.badmintoncn.com,reject
-HOST-SUFFIX,app.bajajfinservmarkets.in,reject
-HOST-SUFFIX,app.ballet.org.uk,reject
-HOST-SUFFIX,app.bancobv.com.br,reject
 HOST-SUFFIX,app.bandimere.com,reject
 HOST-SUFFIX,app.banqi.com.br,reject
 HOST-SUFFIX,app.barking.city,reject
