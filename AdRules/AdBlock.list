@@ -6,7 +6,7 @@
 #   · blackmatrix7/ios_rule_script Privacy (2025-12-08) —— 隐私追踪
 #   · ISP Hijacking —— 运营商劫持
 #   · Advertising hostname 段 —— 国内 App 开屏/信息流
-# 统计: 生效 reject 77755 条 + direct(规则修正) 39 条
+# 统计: 生效 reject 77748 条 + direct(规则修正) 39 条
 # 误伤处置: 历次审计判定为误杀的条目（累计 196 条）已从列表内直接删除，
 #           不再保留注释行 —— 文件更干净，回滚依赖 git 历史与本地备份。
 # 顺序: 规则修正(direct) 置顶 → 广告拦截(reject)。QX 先匹配先生效，
@@ -90,6 +90,34 @@
 #   说明: 四轮累计删除 213 条误杀 reject 行（91+28+77+17）。其余约 1900 条浅层核心子域命中
 #         多为长尾营销/垃圾站主 API，无法靠算法确认，维持拦截；*.cloudfront.net 727 条
 #         随机哈希前缀仍属无法判别残留，靠实际遇到时上报处理。
+# ----------------------------------------------------------------
+# 2026-09-10 政务服务可用性彻查（政府域名专项）
+#   触发: 开启广告拦截后交管12123 App 报「无法连接服务器」。
+#   溯源: AdRules/AdBlock.list 内一条 HOST-SUFFIX,gab.122.gov.cn,reject —— 整域 reject。
+#         该域源自去广告 rewrite 的精确 URL 规则
+#         ^https://gab.122.gov.cn/eapp/m/sysquery/adver$ url reject (仅拦开屏广告接口)，
+#         上游误把 rewrite 的 hostname 当成广告域搬进 DOMAIN-SUFFIX 列表 → 主 API 一并被杀。
+#   方法: 全库捞出含 gov 字样规则 130 条，按「真政府后缀」严格收敛到 34 条，
+#         再对每个候选做 DNS/CNAME 实测定性：
+#         · CNAME 到 *.hs.eloqua.com / elqcdn.eloqua.com = Oracle 营销云 → 保留拦截
+#         · 解析到政务自有 IP / 阿里云CDN / 奇安信WAF = 真实服务 → 放行
+#   ✅ 放行 7 条真政府主服务域（直接删除，不新增策略、不新增 direct 白名单）:
+#         fuwu.nhsa.gov.cn        国家医保服务平台主服务域
+#         gab.122.gov.cn          交管12123 App 主 API  ★本次报障根因
+#         portal.zjzwfw.gov.cn    浙江政务服务网主门户
+#         szdmobile.suzhou.gov.cn 苏州市政务移动服务
+#         tfsmy.chengdu.gov.cn    成都天府市民云主服务
+#         partners.dudley.gov.uk  英国达德利市议会生产 Web App
+#         f-emc.ngsp.gov.vn       越南政府服务节点
+#   ❌ 保留拦截（不影响可用性，且是广告拦截的实际战果）:
+#         ① Oracle Eloqua 营销云 4 条 —— images.news.lavoro.gov.it / info.edb.gov.sg /
+#            lab.prodesp.sp.gov.br / our.sunshinecoast.qld.gov.au（CNAME 指向 hs.eloqua.com）
+#         ② 明确统计命名子域 —— analytics.* / metrics.* / smetrics.* / stats.* /
+#            tracking.* / tr.* / adobeedge.* / analitik.* / log.* / target.*
+#         ③ 法国 gouv.fr 三条 bmly./hlms./wrhv.（共用 et-gv.fr 内部平台，疑似分析 tag，存疑）
+#         ④ 伪 gov.cn 17 条 —— govhechi.cn / govkunming.cn / www.govchengdu.cn / kj-gov.cn /
+#            meituangov.cn 等（gov 前缀在山寨位，非 .gov.cn；实测全部 DNS 不解析=已注销垃圾站）
+#   生效 reject 77755 -> 77748。
 # ----------------------------------------------------------------
 # ================================================================
 
@@ -25464,7 +25492,6 @@ HOST-SUFFIX,ezunguoji.goasrv.com,reject
 HOST-SUFFIX,ezvjys.belezanaweb.com.br,reject
 HOST-SUFFIX,ezvlssrdqevtm.site,reject
 HOST-SUFFIX,ezzwdkadhgkid.site,reject
-HOST-SUFFIX,f-emc.ngsp.gov.vn,reject
 HOST-SUFFIX,f-g-l-j.22yy6.com,reject
 HOST-SUFFIX,f-log-at.grammarly.io,reject
 HOST-SUFFIX,f-log-test.grammarly.io,reject
@@ -27291,7 +27318,6 @@ HOST-SUFFIX,futursalumnes.uic.es,reject
 HOST-SUFFIX,fuvbbjl.xyz,reject
 HOST-SUFFIX,fuw6cipmw.com,reject
 HOST-SUFFIX,fuwn782kk.alphaporno.com,reject
-HOST-SUFFIX,fuwu.nhsa.gov.cn,reject
 HOST-SUFFIX,fuzeszoeal.com,reject
 HOST-SUFFIX,fuzmqfcndgbbw.online,reject
 HOST-SUFFIX,fuzrct.gutteridge.com,reject
@@ -27516,7 +27542,6 @@ HOST-SUFFIX,ga.nsimg.net,reject
 HOST-SUFFIX,ga.webdigi.co.uk,reject
 HOST-SUFFIX,ga1.3dmgame.com,reject
 HOST-SUFFIX,gaafbi.fashiondays.hu,reject
-HOST-SUFFIX,gab.122.gov.cn,reject
 HOST-SUFFIX,gablockdodded.qpon,reject
 HOST-SUFFIX,gaccwr.dutramaquinas.com.br,reject
 HOST-SUFFIX,gadaniya.goaserv.com,reject
@@ -48297,7 +48322,6 @@ HOST-SUFFIX,partnermktg.symantec.com,reject
 HOST-SUFFIX,partners-show.com,reject
 HOST-SUFFIX,partners.avaya.com,reject
 HOST-SUFFIX,partners.dogtime.com,reject
-HOST-SUFFIX,partners.dudley.gov.uk,reject
 HOST-SUFFIX,partners.hostgator.com,reject
 HOST-SUFFIX,partners.hourmediagroup.com,reject
 HOST-SUFFIX,partners.nationalmortgageprofessional.com,reject
@@ -49652,7 +49676,6 @@ HOST-SUFFIX,portal-xunyou.qingcdn.com,reject
 HOST-SUFFIX,portal.dcgone.com,reject
 HOST-SUFFIX,portal.insight.maruedr.com,reject
 HOST-SUFFIX,portal.krollontrack.co.uk,reject
-HOST-SUFFIX,portal.zjzwfw.gov.cn,reject
 HOST-SUFFIX,portalfluently.com,reject
 HOST-SUFFIX,portiasaigon.com,reject
 HOST-SUFFIX,portslocked.com,reject
@@ -63658,7 +63681,6 @@ HOST-SUFFIX,szafvjdd.icu,reject
 HOST-SUFFIX,szakms.bygghemma.se,reject
 HOST-SUFFIX,szbnb3wmaj.com,reject
 HOST-SUFFIX,szdaqi88.com,reject
-HOST-SUFFIX,szdmobile.suzhou.gov.cn,reject
 HOST-SUFFIX,szexma.com,reject
 HOST-SUFFIX,szfhl99.com,reject
 HOST-SUFFIX,szgcnd.capfun.es,reject
@@ -65124,7 +65146,6 @@ HOST-SUFFIX,tfosrv.com,reject
 HOST-SUFFIX,tfovmuplmecxo.website,reject
 HOST-SUFFIX,tfoyfx.dukefotografia.com,reject
 HOST-SUFFIX,tfpeev.chanluu.com,reject
-HOST-SUFFIX,tfsmy.chengdu.gov.cn,reject
 HOST-SUFFIX,tfsuggestion.live,reject
 HOST-SUFFIX,tftran.shop,reject
 HOST-SUFFIX,tfttbd.xyz,reject
