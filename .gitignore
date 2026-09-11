@@ -15,3 +15,6 @@ Thumbs.db
 
 # local workbuddy state (never commit)
 .workbuddy/
+
+# local debug scratch (contains sensitive diag credentials, never commit)
+Debug/
